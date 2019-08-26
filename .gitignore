@@ -1,104 +1,102 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
+# Temporary and binary files
+*~
 *.py[cod]
-*$py.class
-
-# C extensions
 *.so
+*.cfg
+!.isort.cfg
+!setup.cfg
+*.orig
+*.log
+*.pot
+__pycache__/*
+.cache/*
+.*.swp
+*/.ipynb_checkpoints/*
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
+# Project files
+.ropeproject
+.project
+.pydevproject
+.settings
+.idea
+tags
+
+# Package files
 *.egg
-MANIFEST
+*.eggs/
+.installed.cfg
+*.egg-info
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
+# Unittest and coverage
+htmlcov/*
 .coverage
-.coverage.*
-.cache
-nosetests.xml
+.tox
+junit.xml
 coverage.xml
-*.cover
-.hypothesis/
 .pytest_cache/
 
-# Translations
-*.mo
-*.pot
+# Build and docs folder/files
+build/*
+develop-eggs/
+dist/*
+sdist/*
+docs/api/*
+docs/_rst/*
+docs/_build/*
+cover/*
+MANIFEST
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
+# Per-project virtualenvs
+.venv*/
 
-# Flask stuff:
-instance/
+
+# Stuff from default git Python .gitignore that were not set by pyscaffold
 .webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
+nosetests.xml
+db.sqlite3
 .ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
+sdist/
 .spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
 .mypy_cache/
+.env
+lib64/
+dist/
+*.cover
+.hypothesis/
+.Python
+*.sage.py
+lib/
+downloads/
+*.egg-info/
+pip-delete-this-directory.txt
+*.spec
+venv/
+*.mo
+eggs/
+.tox/
+*$py.class
+.eggs/
+pip-log.txt
+.python-version
+.scrapy
+build/
+target/
+celerybeat-schedule
+.spyproject
+.venv
+parts/
+venv.bak/
+*.manifest
+local_settings.py
+ENV/
+wheels/
+htmlcov/
+env/
+env.bak/
+.cache
+__pycache__/
+var/
+.coverage.*
+instance/
+docs/_build/
+/site

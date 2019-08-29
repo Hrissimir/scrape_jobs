@@ -16,8 +16,10 @@ Note: This skeleton file can be safely removed if not needed!
 """
 
 import argparse
-import sys
 import logging
+import sys
+
+from hed_utils.support import log
 
 from scrape_jobs import __version__
 
@@ -26,22 +28,6 @@ __copyright__ = "Hrissimir"
 __license__ = "mit"
 
 _logger = logging.getLogger(__name__)
-
-
-def fib(n):
-    """Fibonacci example function
-
-    Args:
-      n (int): integer
-
-    Returns:
-      int: n-th Fibonacci number
-    """
-    assert n > 0
-    a, b = 1, 1
-    for i in range(n-1):
-        a, b = b, a+b
-    return a
 
 
 def parse_args(args):
@@ -53,17 +39,27 @@ def parse_args(args):
     Returns:
       :obj:`argparse.Namespace`: command line parameters namespace
     """
+
     parser = argparse.ArgumentParser(
-        description="Just a Fibonacci demonstration")
+        description="Perform jobs scrapping.")
+
     parser.add_argument(
         "--version",
         action="version",
         version="scrape_jobs {ver}".format(ver=__version__))
+
     parser.add_argument(
-        dest="n",
-        help="n-th Fibonacci number",
-        type=int,
-        metavar="INT")
+        dest="site",
+        help="The target site / job-board name",
+        type=str,
+        metavar="SITE")
+
+    parser.add_argument(
+        dest="config_file",
+        help="Path to .ini config file for the current execution",
+        type=str,
+        metavar="CONFIG_FILE")
+
     parser.add_argument(
         "-v",
         "--verbose",
@@ -81,15 +77,8 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def setup_logging(loglevel):
-    """Setup basic logging
-
-    Args:
-      loglevel (int): minimum loglevel for emitting messages
-    """
-    logformat = "[%(asctime)s] %(levelname)s:%(name)s:%(message)s"
-    logging.basicConfig(level=loglevel, stream=sys.stdout,
-                        format=logformat, datefmt="%Y-%m-%d %H:%M:%S")
+def scrape(site, config_file):
+    pass
 
 
 def main(args):
@@ -98,11 +87,13 @@ def main(args):
     Args:
       args ([str]): command line parameter list
     """
+
     args = parse_args(args)
-    setup_logging(args.loglevel)
-    _logger.debug("Starting crazy calculations...")
-    print("The {}-th Fibonacci number is {}".format(args.n, fib(args.n)))
-    _logger.info("Script ends here")
+    log.init(args.loglevel)
+
+    _logger.info("Starting jobs scrape...")
+    scrape(args.site, args.config_file)
+    _logger.info("Jobs scrape complete!")
 
 
 def run():

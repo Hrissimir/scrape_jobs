@@ -21,6 +21,10 @@ Sample Usage Instructions
 
 - Prepare the spreadsheet and the spreadsheet's secrets .json (instructions at the bottom)
 
+    - In seek.com.au results sheet, set the first row values (the header) to:
+
+        'date', 'location', 'title', 'company', 'classification', 'url', 'is_featured', 'salary'
+
 - Open a cmd/terminal
 
 - Navigate to some work folder of your choice (e.g "c:\job_scrape", referred to later as CWD)

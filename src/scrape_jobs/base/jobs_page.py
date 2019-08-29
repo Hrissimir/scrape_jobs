@@ -72,23 +72,22 @@ class JobsPage(WebPage):
         is_first_bad_page = True
 
         while True:
-            log.info("processing jobs results on page #%s", current_pageno)
+            log.info("processing jobs results on page #:%s", current_pageno)
 
             if not self.wait_for_results():
-                log.warning("there weren't any results on page #%s", current_pageno)
+                log.warning("there weren't any results on page #:%s", current_pageno)
                 if is_first_bad_page:
                     is_first_bad_page = False
                     self.view_next_results_page()
                     current_pageno += 1
                     continue
                 else:
-                    log.warning("page #%s was the second page with no results in a row - stopping results iteration!")
+                    log.warning("page #:%s was the second page with no results in a row - stopping results iteration!")
                     break
 
             current_page_new_jobs = []
 
             visible_jobs = self.get_visible_jobs()
-            log.info("got %s visible jobs on page %s", len(visible_jobs), current_pageno)
 
             for current_job in visible_jobs:
                 current_job_data = current_job.as_dict(tz_name)
@@ -107,7 +106,7 @@ class JobsPage(WebPage):
             is_bad_page = not (bool(current_page_new_jobs))
 
             if is_bad_page:
-                log.info("page #%s was a bad page - it had no unseen jobs", current_pageno)
+                log.info("page #:%s was a bad page - it had no unseen jobs", current_pageno)
                 if is_first_bad_page:
                     log.warning("this was first bad page, will stop results iteration on next occasion")
                     is_first_bad_page = False
@@ -119,7 +118,7 @@ class JobsPage(WebPage):
                     break
             else:
                 is_first_bad_page = True
-                log.info("found %s unseen jobs on page #%s", len(current_page_new_jobs), current_pageno)
+                log.info("found %s unseen jobs on page #:%s", len(current_page_new_jobs), current_pageno)
                 most_recent_jobs.extend(current_page_new_jobs)
                 self.view_next_results_page()
                 current_pageno += 1

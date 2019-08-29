@@ -86,7 +86,7 @@ class SeekJobsPage(JobsPage):
         except:
             visible_results = []
 
-        log.info("got [%s] visible results on current page", len(visible_results))
+        log.info("got (%s) visible results on current page", len(visible_results))
         return visible_results
 
     def view_next_results_page(self):

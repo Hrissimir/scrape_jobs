@@ -65,19 +65,19 @@ def upload_jobs(params: UploadParams):
                                 for url
                                 in worksheet.col_values(params.worksheet_job_url_column_index + 1)]  # 1-based columns
 
-            log.info("there were %s pre-existing jobs in the sheet", len(stored_jobs_urls))
+            log.info("there were %s pre-existing jobs in the sheet", len(stored_jobs_urls) - 1)  # -1 because header row
 
             new_jobs = [job
                         for job
                         in params.jobs
                         if (job["url"].strip() not in stored_jobs_urls)]
 
-            log.info("the scrape found %s new jobs", len(new_jobs))
+            log.info("the scrape found (%s) previously unseen jobs in total", len(new_jobs))
             try:
 
                 log.info("uploading new jobs to sheet...")
-                for i, job in enumerate(new_jobs):
-                    log.info("uploading job %s/%s ( %s )", i, len(new_jobs), job["title"])
+                for i, job in enumerate(new_jobs, start=1):
+                    log.info("uploading job (%s / %s): '%s'", i, len(new_jobs), job["title"])
                     values = list(job.values())
                     worksheet.append_row(values)
 

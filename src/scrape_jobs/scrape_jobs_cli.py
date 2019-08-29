@@ -24,7 +24,7 @@ from hed_utils.support import log
 
 from scrape_jobs import __version__
 from scrape_jobs import scrape_config
-from scrape_jobs.sites.seek_com_au import scraper as seek_scraper
+from scrape_jobs.sites.seek_com_au import seek_scraper
 
 SCRAPERS = {
     "seek.com.au": seek_scraper

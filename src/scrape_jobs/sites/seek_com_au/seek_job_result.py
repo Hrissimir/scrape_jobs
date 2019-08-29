@@ -7,6 +7,10 @@ from scrape_jobs.base.job_result import JobResult
 
 
 class SeekJobResult(JobResult):
+    """Dict keys:
+        ['date', 'location', 'title', 'company', 'classification', 'url', 'is_featured', 'salary']
+    """
+
     def __init__(self, element: ElementWrapper):
         self._soup = element.soup
 

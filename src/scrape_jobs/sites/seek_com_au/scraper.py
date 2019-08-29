@@ -1,19 +1,19 @@
 from collections import namedtuple
 from configparser import ConfigParser
 from datetime import datetime, timedelta
-from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from hed_utils.selenium import driver
-from hed_utils.support import log, time_tool, google_spreadsheet
+from hed_utils.support import log, time_tool
 
+from scrape_jobs import jobs_uploader
+from scrape_jobs.jobs_uploader import UploadParams, sort_jobs_by_date_asc
 from scrape_jobs.scrape_config import Default, SeekComAu, read_config, assert_valid_config
 from scrape_jobs.sites.seek_com_au.seek_page import SeekPage, JobResult
 
 DATE_FMT = "%Y-%m-%d"
 
 ScrapeParams = namedtuple("ScrapeParams", "what where days tz")
-UploadParams = namedtuple("UploadParams", "name file sheet")
 
 
 def get_scrape_params(config: ConfigParser) -> ScrapeParams:
@@ -26,36 +26,14 @@ def get_scrape_params(config: ConfigParser) -> ScrapeParams:
     return scrape_params
 
 
-def get_upload_params(config: ConfigParser) -> UploadParams:
-    name = config.get(Default.KEY, Default.UPLOAD_SPREADSHEET_NAME)
-    file = config.get(Default.KEY, Default.UPLOAD_SPREADSHEET_JSON)
-    sheet = config.getint(SeekComAu.KEY, SeekComAu.UPLOAD_WORKSHEET_INDEX)
-    upload_params = UploadParams(name, file, sheet)
-    log.debug("got upload params: %s", upload_params)
-    return upload_params
-
-
-def get_upload_error(params: UploadParams) -> Optional[str]:
-    file = Path(params.file)
-    if not file.exists():
-        return f"Upload secrets .json file is missing from '{file}'"
-    try:
-        spreadsheet = google_spreadsheet.connect(spreadsheet_name=params.name, path_to_secrets_file=params.file)
-    except:
-        return f"Could not open GoogleSpreadsheets document by name: [{params.name}]"
-
-    try:
-        worksheet = spreadsheet.get_worksheet(params.sheet)
-    except:
-        return f"Could not get worksheet with index: [{params.sheet}]"
-
-    expected_columns_count = len(JobResult.KEYS)
-    actual_columns_count = worksheet.col_count
-    if actual_columns_count < expected_columns_count:
-        return f"The worksheet # {params.sheet} was expected to have " \
-               f"at least [{expected_columns_count}] columns, but had only: [{actual_columns_count}]"
-
-    return None
+def get_default_upload_params(config: ConfigParser) -> UploadParams:
+    jobs = []
+    spreadsheet_name = config.get(Default.KEY, Default.UPLOAD_SPREADSHEET_NAME)
+    secrets_json = config.get(Default.KEY, Default.UPLOAD_SPREADSHEET_JSON)
+    worksheet_idx = config.getint(SeekComAu.KEY, SeekComAu.UPLOAD_WORKSHEET_INDEX)
+    min_columns = len(JobResult.KEYS)
+    job_url_col_idx = JobResult.KEYS.index("url")
+    return UploadParams(jobs, spreadsheet_name, secrets_json, worksheet_idx, min_columns, job_url_col_idx)
 
 
 def get_stop_date(days, tz) -> str:
@@ -113,6 +91,7 @@ def scrape_jobs(params: ScrapeParams) -> List[dict]:
                 if is_first_bad_page:
                     log.info("current page did not contain matching jobs - will stop the search on next occurrence")
                     is_first_bad_page = False
+                    page_num += 1
                     continue
                 else:
                     log.info("current page was second page in a row with no matching results - search completed!")
@@ -133,69 +112,17 @@ def scrape_jobs(params: ScrapeParams) -> List[dict]:
         return jobs
 
 
-def upload_jobs(jobs: List[dict], params: UploadParams):
-    log.info("uploading [ %s ] jobs with params: %s", len(jobs), params)
-
-    try:
-        log.info("opening GoogleSheets spreadsheet: %s", params.name)
-        spreadsheet = google_spreadsheet.connect(spreadsheet_name=params.name, path_to_secrets_file=params.file)
-
-        try:
-            log.info("opening worksheet #%s", params.sheet)
-            worksheet = spreadsheet.get_worksheet(params.sheet)
-            job_url_column_idz = JobResult.KEYS.index("url")
-            stored_jobs_urls = worksheet.col_values(job_url_column_idz)
-            log.info("there were %s pre-existing jobs in the seet", len(stored_jobs_urls))
-            new_jobs = [job
-                        for job
-                        in jobs
-                        if job["url"] not in stored_jobs_urls]
-            log.info("the scrape found %s new jobs", len(new_jobs))
-
-            try:
-                log.info("uploading new jobs to sheet...")
-                for i, job in enumerate(new_jobs):
-                    log.info("uploading job %s/%s ( %s )", i, len(new_jobs), job["title"])
-                    values = list(job.values())
-                    worksheet.append_row(values)
-            except:
-                log.exception("error while uploading new jobs to sheet!")
-                raise
-
-            log.info("done with new jobs upload!")
-
-        except:
-            log.exception("could not open worksheet #%s", params.sheet)
-
-        log.info("uploaded new jobs to sheet!")
-
-    except:
-        log.exception("could not connect to GoogleSheets!")
-        raise
-
-    log.info("done with jobs upload!")
-
-
-def sort_jobs_by_date_asc(jobs: List[dict]):
-    log.info("sorting jobs by date (asc)...")
-
-    def key(job: dict):
-        return datetime.strptime(job["date"], DATE_FMT)
-
-    jobs.sort(key=key)
-
-
 def scrape(config_file: str):
     config = read_config(config_file)
     assert_valid_config(config)
 
     scrape_params = get_scrape_params(config)
-    upload_params = get_upload_params(config)
+    default_upload_params = get_default_upload_params(config)
 
-    upload_error = get_upload_error(upload_params)
+    upload_error = jobs_uploader.get_upload_error(default_upload_params)
     if upload_error:
         raise RuntimeError(f"Jobs wont't be uploaded because [{upload_error}]!")
 
     jobs = scrape_jobs(scrape_params)
-    sort_jobs_by_date_asc(jobs)
-    upload_jobs(jobs, upload_params)
+    upload_params = default_upload_params._replace(jobs=jobs)
+    jobs_uploader.upload_jobs(upload_params)

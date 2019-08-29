@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+from io import StringIO
 from pathlib import Path
 from typing import Optional
 
@@ -23,7 +24,7 @@ class SeekComAu:
     UPLOAD_WORKSHEET_INDEX = "upload_worksheet_index"
 
 
-def assert_valid(config):
+def assert_valid_config(config):
     assert isinstance(config, ConfigParser)
     assert Default.KEY in config
     assert Default.UPLOAD_SPREADSHEET_NAME in config[Default.KEY]
@@ -52,7 +53,14 @@ def get_sample_config() -> ConfigParser:
     config[SeekComAu.KEY][SeekComAu.TIMEZONE] = "Australia/Sydney"
     config[SeekComAu.KEY][SeekComAu.UPLOAD_WORKSHEET_INDEX] = "0"
 
+    log.debug("got sample config:\n%s", format_config(config))
     return config
+
+
+def format_config(config: ConfigParser) -> str:
+    buffer = StringIO()
+    config.write(buffer)
+    return buffer.getvalue().strip()
 
 
 def read_config(file_path: Optional[str] = None):
@@ -63,6 +71,7 @@ def read_config(file_path: Optional[str] = None):
     with open(file_path, "r") as configfile:
         config.read_file(configfile)
 
+    log.debug("read config from '%s' got:\n%s", file_path, format_config(config))
     return config
 
 

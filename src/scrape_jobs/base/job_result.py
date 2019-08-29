@@ -25,9 +25,12 @@ class JobResult:
         raise NotImplementedError()
 
     def get_post_date(self, tz_name: Optional[str] = None) -> str:
-        post_date_text = self.get_post_date_value()
-        post_datetime = self.parse_post_datetime(post_date_text, tz_name)
-        return str(post_datetime.date())
+        try:
+            post_date_text = self.get_post_date_value()
+            post_datetime = self.parse_post_datetime(post_date_text, tz_name)
+            return str(post_datetime.date())
+        except:
+            return "N/A"
 
     def get_title(self) -> str:
         raise NotImplementedError()

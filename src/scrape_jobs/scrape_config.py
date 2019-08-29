@@ -42,7 +42,7 @@ def assert_valid_config(config):
 def get_sample_config() -> ConfigParser:
     config = ConfigParser()
     config[Default.KEY] = {}
-    config[Default.KEY][Default.UPLOAD_SPREADSHEET_NAME] = "job_stats_data"
+    config[Default.KEY][Default.UPLOAD_SPREADSHEET_NAME] = "jobs_stats_data"
     config[Default.KEY][Default.UPLOAD_SPREADSHEET_JSON] = "Replace with path to secrets.json file."
     config[Default.KEY][Default.UPLOAD_WORKSHEET_INDEX] = "0"
 

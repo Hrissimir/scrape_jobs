@@ -87,9 +87,22 @@ def scrape(site: str, config_file: str):
     SCRAPERS[site].scrape(str(config_path))
 
 
-def init():
+def init_config():
     file = Path.cwd().joinpath(scrape_config.CONFIG_FILENAME)
     scrape_config.write_config(str(file))
+
+
+def init_logging(level):
+    level = level or logging.INFO
+    log_file = Path.cwd().joinpath("scrape-jobs.log")
+
+    if log_file.exists():
+        try:
+            log_file.unlink()
+        except:
+            pass
+
+    log.init(level=level, file=str(log_file))
 
 
 def main(args):
@@ -100,10 +113,14 @@ def main(args):
     """
 
     args = parse_args(args)
-    log.init(args.loglevel)
+    init_logging(args.loglevel)
 
     log.info("Starting jobs scrape...")
-    scrape(args.site, args.config_file)
+    try:
+        scrape(args.site, args.config_file)
+    except:
+        log.exception("error occurred while scraping!")
+        exit(1)
     log.info("Jobs scrape complete!")
 
 

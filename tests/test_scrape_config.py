@@ -25,7 +25,7 @@ class TestScrapeConfig(TestCase):
     def test_format_config(self):
         config = scrape_config.get_sample_config()
         expected = """[DEFAULT]
-upload_spreadsheet_name = job_stats_data
+upload_spreadsheet_name = jobs_stats_data
 upload_spreadsheet_json = Replace with path to secrets.json file.
 upload_worksheet_index = 0
 

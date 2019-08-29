@@ -4,38 +4,31 @@ from urllib.parse import urljoin
 from hed_utils.selenium import driver
 from hed_utils.selenium.page_objects.base.web_page import WebPage
 from hed_utils.selenium.wrappers.element_wrapper import ElementWrapper
+from hed_utils.support import log
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 
 
 class JobResult(ElementWrapper):
+    KEYS = ["date", "title", "company", "classification", "salary", "suburb", "url"]
 
     def __init__(self, element):
         super().__init__(element)
         self._soup = self.soup
-        self._dict = dict(date=self.job_date,
-                          title=self.job_title,
-                          company=self.job_company,
-                          classification=self.job_classification,
-                          salary=self.job_salary,
-                          suburb=self.job_suburb,
-                          url=self.job_url)
+        self._dict = None
 
-    @property
     def is_featured(self) -> bool:
         try:
             return self._soup.select_one("span[data-automation='jobPremium']") is not None
         except:
             return False
 
-    @property
     def job_title(self) -> str:
         try:
             return self._soup.select_one("a[data-automation='jobTitle']").get_text().strip()
         except:
             return "NO_TITLE"
 
-    @property
     def job_url(self) -> str:
         try:
             a = self._soup.select_one("a[data-automation='jobTitle']")
@@ -45,8 +38,7 @@ class JobResult(ElementWrapper):
         except:
             return "NO_URL"
 
-    @property
-    def job_date(self) -> str:
+    def job_date(self, tz="Australia/Sydney") -> str:
         from hed_utils.support import time_tool
         try:
 
@@ -59,45 +51,39 @@ class JobResult(ElementWrapper):
 
         if date:
             date = time_tool.PastTimeParser.parse(date)
-            tz_date = str(time_tool.convert_to_tz(date, "Australia/Sydney").date())
+            tz_date = str(time_tool.convert_to_tz(date, tz).date())
             return str(tz_date)
 
         return ""
 
-    @property
     def _job_classification(self) -> str:
         try:
             return self._soup.select_one("a[data-automation='jobClassification']").get_text().strip()
         except:
             return ""
 
-    @property
     def _job_sub_classification(self) -> str:
         try:
             return self._soup.select_one("a[data-automation='jobSubClassification']").get_text().strip()
         except:
             return ""
 
-    @property
     def job_classification(self) -> str:
-        components = [c for c in [self._job_classification, self._job_sub_classification] if c]
+        components = [c for c in [self._job_classification(), self._job_sub_classification()] if c]
         return ", ".join(components)
 
-    @property
     def job_company(self) -> str:
         try:
             return self._soup.select_one("a[data-automation='jobCompany']").get_text().strip()
         except:
             return "NO_COMPANY"
 
-    @property
     def job_salary(self) -> str:
         try:
             return self._soup.select_one("span[data-automation='jobSalary']").get_text().strip()
         except:
             return "NO_SALARY"
 
-    @property
     def job_suburb(self) -> str:
         try:
             city = self._soup.select_one("a[data-automation='jobLocation']").get_text().strip()
@@ -111,7 +97,15 @@ class JobResult(ElementWrapper):
         components = [c for c in [city, area] if c]
         return ", ".join(components)
 
-    def as_dict(self) -> dict:
+    def as_dict(self, tz="Australia/Sydney") -> dict:
+        if not self._dict:
+            self._dict = dict(date=self.job_date(tz),
+                              title=self.job_title(),
+                              company=self.job_company(),
+                              classification=self.job_classification(),
+                              salary=self.job_salary(),
+                              suburb=self.job_suburb(),
+                              url=self.job_url())
         return self._dict
 
     def __repr__(self):
@@ -135,6 +129,7 @@ class SeekPage(WebPage):
         super().__init__(url_domain="https://www.seek.com.au/", url_path="/")
 
     def set_search_keywords(self, keywords: str):
+        log.info("setting the search 'WHAT' input to: '%s'", keywords)
         search_input = driver.wait_until_visible_element(self.KEYWORDS_INPUT)
         search_input.clear()
         search_input.send_keys(keywords)
@@ -143,6 +138,7 @@ class SeekPage(WebPage):
         return driver.wait_until_visible_element(self.KEYWORDS_INPUT).text
 
     def set_search_location(self, location: str):
+        log.info("setting the search 'WHERE' input to: '%s'", location)
         location_input = driver.wait_until_visible_element(self.LOCATION_INPUT)
         location_input.clear()
         location_input.send_keys(location)
@@ -152,11 +148,13 @@ class SeekPage(WebPage):
         return driver.wait_until_visible_element(self.LOCATION_INPUT).text
 
     def trigger_search(self):
+        log.info("triggering search...")
         driver.click_element(self.SEARCH_BUTTON)
         import time
         time.sleep(5)
 
     def wait_for_search_results(self) -> bool:
+        log.info("waiting for search results...")
         try:
             return driver.wait_until_visible_element(self.SEARCH_RESULTS) is not None
         except TimeoutException:
@@ -184,8 +182,8 @@ class SeekPage(WebPage):
     def get_visible_results(self) -> List[JobResult]:
         return [JobResult(el) for el in driver.wait_until_elements(self.RESULT_ITEM)]
 
-    def get_visible_results_data(self) -> List[dict]:
-        return [result.as_dict() for result in self.get_visible_results()]
+    def get_visible_results_data(self, tz="Australia/Sydney") -> List[dict]:
+        return [job.as_dict(tz) for job in self.get_visible_results()]
 
     def get_current_page_number(self) -> str:
         pagination_container = driver.wait_until_visible_element(self.PAGINATION_NEXT).parent_element
@@ -196,5 +194,6 @@ class SeekPage(WebPage):
         return active_buttons[0].text.strip()
 
     def go_to_next_page(self):
+        log.info("navigating to next results page...")
         driver.scroll_into_view(self.PAGINATION_NEXT)
         driver.click_element(self.PAGINATION_NEXT)

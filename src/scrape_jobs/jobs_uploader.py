@@ -50,8 +50,7 @@ def sort_jobs_by_date_asc(jobs: List[dict]):
 
 
 def upload_jobs(params: UploadParams):
-    log.info("uploading [ %s ] jobs with params: %s", len(params._replace(jobs=[])), params)
-
+    log.info("uploading [ %s ] jobs with params: %s", len(params.jobs), params._replace(jobs=[]))
     sort_jobs_by_date_asc(params.jobs)
 
     try:
@@ -67,8 +66,6 @@ def upload_jobs(params: UploadParams):
                                 in worksheet.col_values(params.worksheet_job_url_column_index + 1)]  # 1-based columns
 
             log.info("there were %s pre-existing jobs in the sheet", len(stored_jobs_urls))
-            from pprint import pformat
-            log.info("pre-existing jobs urls: \n%s", pformat(stored_jobs_urls))
 
             new_jobs = [job
                         for job

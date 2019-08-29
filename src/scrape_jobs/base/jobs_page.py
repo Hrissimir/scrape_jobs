@@ -2,6 +2,7 @@ import datetime
 from typing import List, Dict, Optional
 
 import pytz
+from hed_utils.selenium.page_objects.base.web_page import WebPage
 from hed_utils.support import log
 from hed_utils.support.time_tool import get_local_tz_name, get_local_datetime, convert_to_tz
 
@@ -10,7 +11,7 @@ from scrape_jobs.base.job_result import JobResult
 JobsData = List[Dict[str, str]]
 
 
-class JobsPage:
+class JobsPage(WebPage):
 
     @classmethod
     def get_stop_datetime(cls, past_n_days: int, *, tz_name: Optional[str] = None) -> datetime.datetime:
@@ -38,10 +39,10 @@ class JobsPage:
     def enter_search_details(self, query: str, location: str):
         raise NotImplementedError()
 
-    def press_search_button(self):
+    def trigger_search(self):
         raise NotImplementedError()
 
-    def wait_for_results(self):
+    def wait_for_results(self) -> bool:
         raise NotImplementedError()
 
     def view_next_results_page(self):
@@ -65,14 +66,25 @@ class JobsPage:
             return not bool(same_jobs)
 
         self.enter_search_details(query, location)
-        self.press_search_button()
-        self.wait_for_results()
+        self.trigger_search()
 
         current_pageno = 1
         is_first_bad_page = True
 
         while True:
             log.info("processing jobs results on page #%s", current_pageno)
+
+            if not self.wait_for_results():
+                log.warning("there weren't any results on page #%s", current_pageno)
+                if is_first_bad_page:
+                    is_first_bad_page = False
+                    self.view_next_results_page()
+                    current_pageno += 1
+                    continue
+                else:
+                    log.warning("page #%s was the second page with no results in a row - stopping results iteration!")
+                    break
+
             current_page_new_jobs = []
 
             visible_jobs = self.get_visible_jobs()
@@ -99,6 +111,7 @@ class JobsPage:
                 if is_first_bad_page:
                     log.warning("this was first bad page, will stop results iteration on next occasion")
                     is_first_bad_page = False
+                    self.view_next_results_page()
                     current_pageno += 1
                     continue
                 else:
@@ -108,7 +121,9 @@ class JobsPage:
                 is_first_bad_page = True
                 log.info("found %s unseen jobs on page #%s", len(current_page_new_jobs), current_pageno)
                 most_recent_jobs.extend(current_page_new_jobs)
+                self.view_next_results_page()
                 current_pageno += 1
 
+        log.info("collected total of %s matching jobs for the pas %s days", len(most_recent_jobs), past_n_days)
         most_recent_jobs.sort(key=lambda j: self.parse_datetime_string(j["date"], tz_name=tz_name))
         return most_recent_jobs

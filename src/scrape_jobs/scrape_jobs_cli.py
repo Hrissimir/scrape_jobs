@@ -18,16 +18,20 @@ Note: This skeleton file can be safely removed if not needed!
 import argparse
 import logging
 import sys
+from pathlib import Path
 
 from hed_utils.support import log
 
 from scrape_jobs import __version__
+from scrape_jobs import scrape_config
+from scrape_jobs.sites.seek_com_au import scraper as seek_scraper
 
+SCRAPERS = {
+    "seek.com.au": seek_scraper
+}
 __author__ = "Hrissimir"
 __copyright__ = "Hrissimir"
 __license__ = "mit"
-
-_logger = logging.getLogger(__name__)
 
 
 def parse_args(args):
@@ -77,8 +81,15 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def scrape(site, config_file):
-    pass
+def scrape(site: str, config_file: str):
+    site = site.strip().lower()
+    config_path = Path(config_file.strip())
+    SCRAPERS[site].scrape(str(config_path))
+
+
+def init():
+    file = Path.cwd().joinpath(scrape_config.CONFIG_FILENAME)
+    scrape_config.write_config(str(file))
 
 
 def main(args):
@@ -91,9 +102,9 @@ def main(args):
     args = parse_args(args)
     log.init(args.loglevel)
 
-    _logger.info("Starting jobs scrape...")
+    log.info("Starting jobs scrape...")
     scrape(args.site, args.config_file)
-    _logger.info("Jobs scrape complete!")
+    log.info("Jobs scrape complete!")
 
 
 def run():

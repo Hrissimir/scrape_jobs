@@ -84,7 +84,7 @@ def parse_args(args):
 def scrape(site: str, config_file: str):
     site = site.strip().lower()
     config_path = Path(config_file.strip())
-    SCRAPERS[site].scrape(str(config_path))
+    SCRAPERS[site].start(str(config_path))
 
 
 def init_config():

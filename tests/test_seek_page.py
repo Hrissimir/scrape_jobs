@@ -1,15 +1,14 @@
-from unittest import TestCase
+from unittest import TestCase, mock
 
 from hed_utils.selenium import driver
 from hed_utils.support import log
 
-from scrape_jobs.sites.seek_com_au.seek_page import SeekPage, JobResult
+from scrape_jobs.sites.seek_com_au.seek_page import SeekPage
 
 
 class TestSeekPage(TestCase):
-    KEYWORDS = "manager"
-    LOCATION = "All Sydney NSW"
-    SORT_BY = "Date"
+    WHAT = "manager"
+    WHERE = "All Sydney NSW"
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -21,58 +20,59 @@ class TestSeekPage(TestCase):
         self.page = SeekPage()
         self.page.go_to()
 
-    def test_can_get_set_search_keywords(self):
-        self.page.set_search_keywords(self.KEYWORDS)
-        self.assertEqual(self.page.get_search_keywords(), self.KEYWORDS)
+    def test_set_search_params_calls_relevant_methods(self):
+        with mock.patch("scrape_jobs.sites.seek_com_au.seek_page.SeekSearch.set_what") as mock_set_what:
+            with mock.patch("scrape_jobs.sites.seek_com_au.seek_page.SeekSearch.set_where") as mock_set_where:
+                self.page.set_search_params(what=self.WHAT, where=self.WHERE)
+                mock_set_what.assert_called_once_with(self.WHAT)
+                mock_set_where.assert_called_once_with(self.WHERE)
 
-    def test_can_get_set_search_location(self):
-        self.page.set_search_location(self.LOCATION)
-        self.assertEqual(self.page.get_search_location(), self.LOCATION)
+    def test_can_set_what(self):
+        self.page.set_what(self.WHAT)
+        self.assertEqual(self.page.get_what(), self.WHAT)
 
-    def test_can_trigger_search_and_wait_for_results(self):
-        self.test_can_get_set_search_keywords()
-        self.test_can_get_set_search_location()
+    def test_can_set_where(self):
+        self.page.set_where(self.WHERE)
+        self.assertEqual(self.page.get_where(), self.WHERE)
+
+    def test_trigger_search(self):
+        # navigate to page - no results list & next page
+        self.assertFalse(self.page.has_results())
+        self.assertFalse(self.page.has_next_page())
+
+        # trigger empty search & wait
         self.page.trigger_search()
-        self.assertTrue(self.page.wait_for_search_results())
+        self.page.wait_for_search_complete()
 
-    def test_can_sort_by_date(self):
-        self.test_can_trigger_search_and_wait_for_results()
-        self.page.set_sort_by(self.SORT_BY)
-        self.assertTrue(self.page.wait_for_search_results())
-        self.assertEqual(self.page.get_sort_by(), self.SORT_BY)
+        # results and next page had appeared
+        self.assertTrue(self.page.has_results())
+        self.assertTrue(self.page.has_next_page())
+
+        # sort order was silently changed to Date
+        self.assertEqual(self.page.get_sort_order(), "Date")
 
     def test_can_get_visible_results(self):
-        self.test_can_sort_by_date()
+        self.page.set_search_params(what=self.WHAT, where=self.WHERE)
+        self.page.trigger_search()
+
         results = self.page.get_visible_results()
         self.assertTrue(len(results) > 1)
         for r in results:
-            self.assertIsInstance(r, JobResult)
-
-    def test_can_get_visible_results_data(self):
-        self.test_can_sort_by_date()
-        results_data = self.page.get_visible_results_data()
-        self.assertTrue(len(results_data) > 1)
-        for r in results_data:
             self.assertIsInstance(r, dict)
 
-        # Bonus: log them pretty
-        from tabulate import tabulate
-        table_headers = [key.upper() for key in results_data[0].keys()]
-        table_data = [d.values() for d in results_data]
-        table = tabulate(tabular_data=table_data, headers=table_headers, tablefmt="fancy_grid")
-        log.debug(f"Results:\n{table}")
-
     def test_can_go_to_next_page(self):
-        self.test_can_trigger_search_and_wait_for_results()
-        current_page = self.page.get_current_page_number()
-        self.assertEqual(current_page, "1")
+        self.page.set_search_params(what=self.WHAT, where=self.WHERE)
+        self.page.trigger_search()
 
+        first_page = self.page.get_current_page_number()
+        self.assertEqual(first_page, "1")
         self.page.go_to_next_page()
-        self.page.wait_for_search_results()
-        current_page = self.page.get_current_page_number()
-        self.assertEqual(current_page, "2")
+        self.page.wait_for_search_complete()
 
+        second_page = self.page.get_current_page_number()
+        self.assertEqual(second_page, "2")
         self.page.go_to_next_page()
-        self.page.wait_for_search_results()
-        current_page = self.page.get_current_page_number()
-        self.assertEqual(current_page, "3")
+        self.page.wait_for_search_complete()
+
+        third_page = self.page.get_current_page_number()
+        self.assertEqual(third_page, "3")

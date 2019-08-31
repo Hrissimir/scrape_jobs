@@ -1,3 +1,5 @@
+from typing import List
+
 from hed_utils.selenium import driver
 from hed_utils.support import log, waiter
 from selenium.webdriver.common.by import By
@@ -17,9 +19,11 @@ class SeekSearch(SearchPage):
 
     SEARCH_BUTTON = By.CSS_SELECTOR, "button[data-automation='searchButton']"
 
-    SORT_BY_COMBO = By.CSS_SELECTOR, "label[id='SortedByLabel']"
+    SORT_BY_COMBO = By.CSS_SELECTOR, "label#SortedByLabel"
 
     SORT_BY_COMBO_DATE_ITEM = By.XPATH, "//ul[@role='navigation'][@aria-label='Sort By']/li[contains(.,'Date')]"
+
+    SORT_ORDER = By.CSS_SELECTOR, "label#SortedByLabel > strong"
 
     TOTAL_RESULTS_COUNT_LABEL = By.CSS_SELECTOR, "strong[data-automation='totalJobsCount']"
 
@@ -29,12 +33,18 @@ class SeekSearch(SearchPage):
         search_input.clear()
         search_input.send_keys(what)
 
+    def get_what(self) -> str:
+        return driver.wait_until_visible_element(self.INPUT_WHAT).text
+
     def set_where(self, where: str):
         log.info("setting search 'WHERE' to: '%s'", where)
         location_input = driver.wait_until_visible_element(self.INPUT_WHERE)
         location_input.clear()
         location_input.send_keys(where)
         driver.click_element(self.INPUT_WHERE_AUTOCOMPLETE_ITEM)
+
+    def get_where(self) -> str:
+        return driver.wait_until_visible_element(self.INPUT_WHERE).text
 
     def set_search_params(self, **params):
         what = params.pop("what", "")
@@ -47,6 +57,11 @@ class SeekSearch(SearchPage):
         log.info("sorting results by 'Date'")
         driver.click_element(self.SORT_BY_COMBO)
         driver.click_element(self.SORT_BY_COMBO_DATE_ITEM)
+
+    def get_sort_order(self) -> str:
+        if driver.is_visible(self.SORT_ORDER):
+            return driver.wait_until_visible_element(self.SORT_ORDER).text.strip().capitalize()
+        return ""
 
     def trigger_search(self):
         log.info("triggering search...")
@@ -63,6 +78,8 @@ class SeekSearch(SearchPage):
             return 0
 
     def wait_for_search_complete(self):
+        """Just waits for the results container to appear, without caring for actual result items"""
+
         log.info("waiting for search to complete...")
 
         def search_complete() -> bool:
@@ -82,10 +99,21 @@ class SeekResults(ResultsPage):
     def has_next_page(self) -> bool:
         return driver.is_visible(self.NEXT_PAGE_BUTTON)
 
-    def get_visible_results(self) -> list:
+    def get_visible_results(self) -> List[dict]:
         return [seek_job.parse_result_element(e)
                 for e
                 in driver.wait_until_visible_elements(self.RESULT_ITEM)]
+
+    def get_current_page_number(self) -> str:
+        try:
+            pagination_container = driver.wait_until_visible_element(self.NEXT_PAGE_BUTTON).parent_element
+            active_buttons = [child
+                              for child
+                              in pagination_container.child_elements
+                              if ((child.tag_name == "span") and (not child.has_child_elements))]
+            return active_buttons[0].text.strip()
+        except:
+            return ""
 
     def go_to_next_page(self):
         log.info("moving to next results page...")

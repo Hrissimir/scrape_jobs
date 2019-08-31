@@ -3,26 +3,7 @@ Changelog
 =========
 
 
-Version 1.0.1
+Version 1.3.0
 =============
 
-- Added support for scraping seek.com.au
-
-
-Version 1.0.2
-=============
-
-- moved out jobs uploading to separate module
-
-
-Version 1.1.0
-=============
-
-- added base classes for page & result
-- bumped dependent hed_utils version
-
-
-Version 1.2.0
-=============
-
-- restructured stuff a bit
+- Fully operational for seek.com.au

@@ -14,6 +14,6 @@ def test_main_processes_args():
 def test_scrape_seek():
     site = "seek.com.au"
     config_file = "scrape.ini"
-    with mock.patch("scrape_jobs.sites.seek_com_au.scraper.scrape") as mock_method:
+    with mock.patch("scrape_jobs.sites.seek_com_au.seek_scraper.start") as mock_method:
         scrape_jobs_cli.main([site, config_file])
         mock_method.assert_called_once_with(config_file)

@@ -20,3 +20,9 @@ Version 1.1.0
 
 - added base classes for page & result
 - bumped dependent hed_utils version
+
+
+Version 1.2.0
+=============
+
+- restructured stuff a bit

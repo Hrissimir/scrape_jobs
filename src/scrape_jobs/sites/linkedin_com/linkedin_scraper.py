@@ -8,7 +8,7 @@ from hed_utils.support import google_spreadsheet
 from hed_utils.support import log, time_tool
 
 from scrape_jobs.common.result_predicate import MaxDaysAge
-from scrape_jobs.common.scrape_config import Default, SeekComAu, read_config, assert_valid_config
+from scrape_jobs.common.scrape_config import Default, LinkedinCom, read_config, assert_valid_config
 from scrape_jobs.sites.linkedin_com.linkedin_job_result import LinkedinJobResult
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_page import LinkedinJobsPage
 
@@ -17,11 +17,14 @@ UploadParams = namedtuple("UploadParams", "spreadsheet_name json_auth_file works
 
 
 def get_scrape_params(config: ConfigParser) -> ScrapeParams:
-    what = config.get(SeekComAu.KEY, SeekComAu.WHAT)
-    where = config.get(SeekComAu.KEY, SeekComAu.WHERE)
-    days = config.getint(SeekComAu.KEY, SeekComAu.DAYS)
-    tz = config.get(SeekComAu.KEY, SeekComAu.TIMEZONE)
-    scrape_params = ScrapeParams(what, where, days, tz)
+    cfg = config[LinkedinCom.KEY]
+
+    keywords = cfg.get(LinkedinCom.KEYWORDS)
+    location = cfg.get(LinkedinCom.LOCATION)
+    days = cfg.getint(LinkedinCom.DAYS)
+    tz = cfg.get(LinkedinCom.TIMEZONE)
+
+    scrape_params = ScrapeParams(keywords, location, days, tz)
     log.info("parsed scrape params: %s", scrape_params)
     return scrape_params
 
@@ -29,7 +32,7 @@ def get_scrape_params(config: ConfigParser) -> ScrapeParams:
 def get_upload_params(config: ConfigParser) -> UploadParams:
     spreadsheet_name = config.get(Default.KEY, Default.UPLOAD_SPREADSHEET_NAME)
     secrets_json = config.get(Default.KEY, Default.UPLOAD_SPREADSHEET_JSON)
-    worksheet_idx = config.getint(SeekComAu.KEY, SeekComAu.UPLOAD_WORKSHEET_INDEX)
+    worksheet_idx = config.getint(LinkedinCom.KEY, LinkedinCom.UPLOAD_WORKSHEET_INDEX)
 
     params = UploadParams(spreadsheet_name, secrets_json, worksheet_idx)
     log.info("parsed upload params from config: %s", params)
@@ -61,7 +64,7 @@ def scrape_raw_results(params: ScrapeParams) -> List[dict]:
         utc_datetime = result.get("utc_datetime", None)
         if utc_datetime:
             tz_datetime = time_tool.utc_to_tz(utc_datetime, tz_name)
-            result["utc_datetime"] = tz_datetime.strftime("%Y-%m-%d %H:%M:%S")
+            result["utc_datetime"] = tz_datetime.strftime("%Y-%m-%d")
 
     return results
 
@@ -118,7 +121,7 @@ def start(config_file: str):
     upload_error = google_spreadsheet.get_possible_append_row_error(spreadsheet_name=upload_params.spreadsheet_name,
                                                                     json_auth_file=upload_params.json_auth_file,
                                                                     worksheet_index=upload_params.worksheet_index,
-                                                                    row_len=len(LinkedinJobResult.get_dict_keys()))
+                                                                    row_len=len(LinkedinJobResult.get_dict_keys()) + 1)
     if upload_error:
         raise RuntimeError(f"Won't be able to upload results! Reason: {upload_error}")
 
@@ -129,32 +132,3 @@ def start(config_file: str):
     prepend_scrape_timestamp(rows, scrape_params.tz)
 
     upload_rows(rows, upload_params)
-
-
-def main():
-    # from pathlib import Path
-    # cfg_path = Path(__file__).parent.parent.parent.parent.parent.parent.joinpath("scrape-jobs.ini")
-    # cfg_file = str(cfg_path)
-    # start(cfg_file)
-
-    scrape_params = ScrapeParams(keywords="QA Automation",
-                                 location="Sredets, Sofia City, Bulgaria",
-                                 days=2,
-                                 tz="Europe/Sofia")
-
-    page = LinkedinJobsPage()
-    predicate = MaxDaysAge(14)
-    results = page.search_and_collect(predicate, keywords=scrape_params.keywords, location=scrape_params.location)
-    from pprint import pprint
-    pprint(results, width=1000)
-
-
-if __name__ == '__main__':
-    log.init()
-    driver.start_chrome()
-    try:
-        main()
-    except:
-        log.exception("error in main")
-    finally:
-        driver.quit()

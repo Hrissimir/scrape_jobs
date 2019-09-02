@@ -1,15 +1,18 @@
-from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
-from typing import Optional
+from abc import ABC, abstractmethod, abstractclassmethod
+from datetime import datetime
+from typing import Optional, List
 
 from bs4 import BeautifulSoup
-from hed_utils.support import time_tool
 
 
 class Result(ABC):
 
     def __init__(self, soup: BeautifulSoup):
         self.soup = soup
+
+    @abstractclassmethod
+    def get_dict_keys(cls) -> List[str]:
+        pass
 
     @abstractmethod
     def get_utc_datetime(self) -> Optional[datetime]:

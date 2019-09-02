@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from urllib.parse import urljoin
 
 from hed_utils.support import time_tool
@@ -8,6 +8,10 @@ from scrape_jobs.common.result import Result
 
 
 class SeekResult(Result):
+
+    @classmethod
+    def get_dict_keys(cls) -> List[str]:
+        return ["utc_datetime", "location", "title", "company", "classification", "url", "salary"]
 
     def get_utc_datetime(self) -> Optional[datetime]:
         try:

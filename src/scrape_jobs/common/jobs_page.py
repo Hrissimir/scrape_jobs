@@ -20,7 +20,7 @@ class ISearchContext(ABC):
         raise NotImplementedError()
 
 
-class ResultsPage(ABC):
+class IResultsContext(ABC):
 
     def has_results(self) -> bool:
         raise NotImplementedError()
@@ -38,7 +38,7 @@ class ResultsPage(ABC):
         waiter.poll_for_result(self.has_results, timeout_seconds=30, default=TimeoutError)
 
 
-class JobsPage(ISearchContext, ResultsPage, WebPage, ABC):
+class JobsPage(ISearchContext, IResultsContext, WebPage, ABC):
     pass
 
 

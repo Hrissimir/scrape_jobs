@@ -4,7 +4,7 @@ from hed_utils.selenium import driver
 from hed_utils.support import log, waiter
 from selenium.webdriver.common.by import By
 
-from scrape_jobs.common.jobs_page import JobsPage, ISearchContext, ResultsPage
+from scrape_jobs.common.jobs_page import JobsPage, ISearchContext, IResultsContext
 from scrape_jobs.sites.seek_com_au import seek_job
 
 
@@ -88,7 +88,7 @@ class SeekSearch(ISearchContext):
         waiter.poll_for_result(search_complete, timeout_seconds=30, default=TimeoutError)
 
 
-class SeekResults(ResultsPage):
+class SeekResults(IResultsContext):
     NEXT_PAGE_BUTTON = By.CSS_SELECTOR, "a[data-automation='page-next']"
 
     RESULT_ITEM = By.CSS_SELECTOR, "div[data-automation='searchResults'] article"

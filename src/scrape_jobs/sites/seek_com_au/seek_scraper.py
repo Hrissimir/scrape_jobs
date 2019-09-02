@@ -118,7 +118,7 @@ def start(config_file: str):
     upload_error = google_spreadsheet.get_possible_append_row_error(spreadsheet_name=upload_params.spreadsheet_name,
                                                                     json_auth_file=upload_params.json_auth_file,
                                                                     worksheet_index=upload_params.worksheet_index,
-                                                                    row_len=len(SeekResult.get_dict_keys()))
+                                                                    row_len=len(SeekResult.get_dict_keys())+1)
     if upload_error:
         raise RuntimeError(f"Won't be able to upload results! Reason: {upload_error}")
 

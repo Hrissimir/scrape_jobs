@@ -23,7 +23,7 @@ from pathlib import Path
 from hed_utils.support import log
 
 from scrape_jobs import __version__
-from scrape_jobs import scrape_config
+from scrape_jobs.common import scrape_config
 from scrape_jobs.sites.seek_com_au import seek_scraper
 
 SCRAPERS = {

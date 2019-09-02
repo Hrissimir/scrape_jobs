@@ -3,7 +3,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from scrape_jobs import scrape_config
+from scrape_jobs.common import scrape_config
 
 
 class TestScrapeConfig(TestCase):

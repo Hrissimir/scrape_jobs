@@ -1,7 +1,6 @@
 from typing import List
 
 from hed_utils.selenium import driver
-from hed_utils.selenium.page_objects.base.page_element import PageElement
 from hed_utils.selenium.wrappers.element_wrapper import ElementWrapper
 from selenium.webdriver.common.by import By
 
@@ -9,14 +8,11 @@ from scrape_jobs.common.results_context import ResultsContext
 from scrape_jobs.sites.linkedin_com.linkedin_job_result import LinkedinJobResult
 
 
-class LinkedinResultsContext(PageElement, ResultsContext):
+class LinkedinResultsContext(ResultsContext):
     LOCATOR = By.XPATH, "//main/section[contains(@class,'results__container')]"
     RESULTS_LIST = By.XPATH, LOCATOR[-1] + "/ul"
     JOB_RESULT_ITEM = By.XPATH, RESULTS_LIST[-1] + "/li[contains(@class,'job-result-card')]"
     SEE_MORE_JOBS = By.XPATH, LOCATOR[-1] + "/button[contains(@class,'see-more-jobs')]"
-
-    def __init__(self):
-        super().__init__(self.LOCATOR)
 
     def elements(self) -> List[ElementWrapper]:
         return driver.wait_until_visible_elements(self.JOB_RESULT_ITEM)

@@ -1,4 +1,4 @@
-from hed_utils.selenium.page_objects.base.web_page import WebPage
+from hed_utils.selenium import driver
 from hed_utils.support import log
 
 from scrape_jobs.common.search_context import SearchContext
@@ -24,9 +24,11 @@ class LinkedinSearchContext(SearchContext):
 
     def set_keywords(self, keywords):
         self.search_section.set_keywords(keywords)
+        driver.wait_until_page_loads()
 
     def set_location(self, location):
         self.search_section.set_location(location)
+        driver.wait_until_page_loads()
 
     def trigger_search(self):
         self.search_section.trigger_search()
@@ -41,4 +43,4 @@ class LinkedinSearchContext(SearchContext):
         self.set_location(location)
 
     def wait_for_search_complete(self):
-        self.JOBS_RESULTS.wait_to_appear()
+        driver.wait_until_visible_element(self.JOBS_RESULTS.LOCATOR)

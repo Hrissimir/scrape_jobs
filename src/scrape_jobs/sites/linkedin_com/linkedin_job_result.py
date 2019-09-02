@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Optional, List
 
-from bs4 import BeautifulSoup
 from hed_utils.support import time_tool
 
 from scrape_jobs.common.result import Result
@@ -28,7 +27,7 @@ class LinkedinJobResult(Result):
 
     def get_title(self) -> Optional[str]:
         try:
-            return self.soup.select_one("span.job-result-card__location").get_text().strip()
+            return self.soup.select_one("h3.job-result-card__title").get_text().strip()
         except:
             return None
 

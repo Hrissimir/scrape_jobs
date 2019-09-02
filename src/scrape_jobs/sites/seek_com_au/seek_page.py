@@ -4,11 +4,11 @@ from hed_utils.selenium import driver
 from hed_utils.support import log, waiter
 from selenium.webdriver.common.by import By
 
-from scrape_jobs.common.jobs_page import JobsPage, SearchPage, ResultsPage
+from scrape_jobs.common.jobs_page import JobsPage, ISearchContext, ResultsPage
 from scrape_jobs.sites.seek_com_au import seek_job
 
 
-class SeekSearch(SearchPage):
+class SeekSearch(ISearchContext):
     INPUT_WHAT = By.ID, "SearchBar__Keywords"
 
     INPUT_WHERE = By.ID, "SearchBar__Where"

@@ -8,7 +8,7 @@ from hed_utils.support import log, waiter
 JobsData = List[Dict[str, str]]
 
 
-class SearchPage(ABC):
+class ISearchContext(ABC):
 
     def set_search_params(self, **params):
         raise NotImplementedError()
@@ -38,7 +38,7 @@ class ResultsPage(ABC):
         waiter.poll_for_result(self.has_results, timeout_seconds=30, default=TimeoutError)
 
 
-class JobsPage(SearchPage, ResultsPage, WebPage, ABC):
+class JobsPage(ISearchContext, ResultsPage, WebPage, ABC):
     pass
 
 

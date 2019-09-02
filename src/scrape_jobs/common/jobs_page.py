@@ -55,22 +55,25 @@ def search_and_collect(page: JobsPage, job_predicate, **search_params) -> List[d
     results_of_interest = []
 
     is_first_time_no_jobs = True
+
     while page.has_results():
 
-        new_results = [r for r in page.get_visible_results() if (r not in known_results)]
-        new_interesting_results = [job for job in new_results if job_predicate(job)]
+        all_new_results = [r for r in page.get_visible_results() if (r not in known_results)]
+        log.info("got %s new results in total", len(all_new_results))
 
-        if new_interesting_results:
-            log.info("got %s new results:\n%s", len(new_interesting_results), pformat(new_interesting_results))
-            results_of_interest.extend(new_interesting_results)
+        matching_new_results = [job for job in all_new_results if job_predicate(job)]
+        log.info("got %s new results matching", len(matching_new_results))
+
+        if matching_new_results:
+            results_of_interest.extend(matching_new_results)
             is_first_time_no_jobs = True
         else:
-            log.warning("there were no jobs of interest on this results page (out of %s jobs)", len(new_results))
+            log.warning("there were no matching new results!")
             if is_first_time_no_jobs:
-                log.warning("this was the first time it happened - will stop the search on next occasion")
+                log.warning("first time no matching results - will stop iteration next time")
                 is_first_time_no_jobs = False
             else:
-                log.warning("this was the second time it happened in a row - done iterating results!")
+                log.warning("second time no matching results - done iterating!")
                 break
 
         if page.has_next_page():

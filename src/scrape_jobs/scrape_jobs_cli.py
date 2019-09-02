@@ -1,20 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-This is a skeleton file that can serve as a starting point for a Python
-console script. To run this script uncomment the following lines in the
-[options.entry_points] section in setup.cfg:
-
-    console_scripts =
-         fibonacci = scrape_jobs.skeleton:run
-
-Then run `python setup.py install` which will install the command `fibonacci`
-inside your current environment.
-Besides console scripts, the header (i.e. until _logger...) of this file can
-also be used as template for Python modules.
-
-Note: This skeleton file can be safely removed if not needed!
-"""
-
 import argparse
 import logging
 import sys
@@ -24,14 +8,17 @@ from hed_utils.support import log
 
 from scrape_jobs import __version__
 from scrape_jobs.common import scrape_config
+from scrape_jobs.sites.linkedin_com import linkedin_scraper
 from scrape_jobs.sites.seek_com_au import seek_scraper
 
-SCRAPERS = {
-    "seek.com.au": seek_scraper
-}
 __author__ = "Hrissimir"
 __copyright__ = "Hrissimir"
 __license__ = "mit"
+
+SCRAPERS = {
+    "seek.com.au": seek_scraper,
+    "linkedin.com": linkedin_scraper
+}
 
 
 def parse_args(args):

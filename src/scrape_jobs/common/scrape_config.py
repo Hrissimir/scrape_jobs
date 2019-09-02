@@ -24,34 +24,65 @@ class SeekComAu:
     UPLOAD_WORKSHEET_INDEX = "upload_worksheet_index"
 
 
+class LinkedinCom:
+    KEY = "linkedin.com"
+    KEYWORDS = "keywords"
+    LOCATION = "location"
+    DAYS = "days"
+    TIMEZONE = "timezone"
+    UPLOAD_WORKSHEET_INDEX = "upload_worksheet_index"
+
+
 def assert_valid_config(config):
     assert isinstance(config, ConfigParser)
     assert Default.KEY in config
-    assert Default.UPLOAD_SPREADSHEET_NAME in config[Default.KEY]
-    assert Default.UPLOAD_SPREADSHEET_JSON in config[Default.KEY]
-    assert Default.UPLOAD_WORKSHEET_INDEX in config[Default.KEY]
+    default = config[Default.KEY]
+    assert Default.UPLOAD_SPREADSHEET_NAME in default
+    assert Default.UPLOAD_SPREADSHEET_JSON in default
+    assert Default.UPLOAD_WORKSHEET_INDEX in default
 
     assert SeekComAu.KEY in config
-    assert SeekComAu.WHAT in config[SeekComAu.KEY]
-    assert SeekComAu.WHERE in config[SeekComAu.KEY]
-    assert SeekComAu.DAYS in config[SeekComAu.KEY]
-    assert SeekComAu.TIMEZONE in config[SeekComAu.KEY]
-    assert SeekComAu.UPLOAD_WORKSHEET_INDEX in config[SeekComAu.KEY]
+    seek = config[SeekComAu.KEY]
+
+    assert SeekComAu.WHAT in seek
+    assert SeekComAu.WHERE in seek
+    assert SeekComAu.DAYS in seek
+    assert SeekComAu.TIMEZONE in seek
+    assert SeekComAu.UPLOAD_WORKSHEET_INDEX in seek
+
+    assert LinkedinCom.KEY in config
+    linkedin = config[LinkedinCom.KEY]
+
+    assert LinkedinCom.KEYWORDS in linkedin
+    assert LinkedinCom.LOCATION in linkedin
+    assert LinkedinCom.DAYS in linkedin
+    assert LinkedinCom.TIMEZONE in linkedin
+    assert LinkedinCom.UPLOAD_WORKSHEET_INDEX in linkedin
 
 
 def get_sample_config() -> ConfigParser:
     config = ConfigParser()
     config[Default.KEY] = {}
-    config[Default.KEY][Default.UPLOAD_SPREADSHEET_NAME] = "jobs_stats_data"
-    config[Default.KEY][Default.UPLOAD_SPREADSHEET_JSON] = "Replace with path to secrets.json file."
-    config[Default.KEY][Default.UPLOAD_WORKSHEET_INDEX] = "0"
+    default = config[Default.KEY]
+    default[Default.UPLOAD_SPREADSHEET_NAME] = "jobs_stats_data"
+    default[Default.UPLOAD_SPREADSHEET_JSON] = "Replace with path to secrets.json file."
+    default[Default.UPLOAD_WORKSHEET_INDEX] = "0"
 
     config[SeekComAu.KEY] = {}
-    config[SeekComAu.KEY][SeekComAu.WHAT] = "Replace with search query"
-    config[SeekComAu.KEY][SeekComAu.WHERE] = "All Sydney NSW"
-    config[SeekComAu.KEY][SeekComAu.DAYS] = "3"
-    config[SeekComAu.KEY][SeekComAu.TIMEZONE] = "Australia/Sydney"
-    config[SeekComAu.KEY][SeekComAu.UPLOAD_WORKSHEET_INDEX] = "0"
+    seek = config[SeekComAu.KEY]
+    seek[SeekComAu.WHAT] = "Replace with search query"
+    seek[SeekComAu.WHERE] = "All Sydney NSW"
+    seek[SeekComAu.DAYS] = "3"
+    seek[SeekComAu.TIMEZONE] = "Australia/Sydney"
+    seek[SeekComAu.UPLOAD_WORKSHEET_INDEX] = "0"
+
+    config[LinkedinCom.KEY] = {}
+    linkedin = config[LinkedinCom.KEY]
+    linkedin[LinkedinCom.KEYWORDS] = "Replace with search query"
+    linkedin[LinkedinCom.LOCATION] = "Sydney, New South Wales, Australia"
+    linkedin[LinkedinCom.DAYS] = "2"
+    linkedin[LinkedinCom.TIMEZONE] = "Australia/Sydney"
+    linkedin[LinkedinCom.UPLOAD_WORKSHEET_INDEX] = "1"
 
     log.debug("got sample config:\n%s", format_config(config))
     return config

@@ -34,6 +34,13 @@ what = Replace with search query
 where = All Sydney NSW
 days = 3
 timezone = Australia/Sydney
-upload_worksheet_index = 0""".strip()
+upload_worksheet_index = 0
+
+[linkedin.com]
+keywords = Replace with search query
+location = Sydney, New South Wales, Australia
+days = 2
+timezone = Australia/Sydney
+upload_worksheet_index = 1""".strip()
         actual = scrape_config.format_config(config)
         self.assertEqual(expected, actual)

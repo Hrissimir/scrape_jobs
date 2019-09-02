@@ -21,7 +21,7 @@ class LinkedinResultsContext(ResultsContext):
         return driver.is_visible(self.JOB_RESULT_ITEM)
 
     def has_next_page(self) -> bool:
-        return driver.is_visible(self.SEE_MORE_JOBS)
+        return driver.is_visible(self.SEE_MORE_JOBS, timeout=5)
 
     def get_visible_results(self) -> List[LinkedinJobResult]:
         return [LinkedinJobResult(e.soup) for e in self.elements()]

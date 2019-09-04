@@ -35,9 +35,12 @@ class LinkedinSearchContext(SearchContext):
 
     def set_date_posted(self, date_posted):
         self.DATE_POSTED_FILTER.set_date_posted(date_posted)
+        driver.wait_until_page_loads()
 
     def trigger_search(self):
-        self.search_section.trigger_search()
+        # no need to trigger - entering details re-triggers automatically
+
+        return
 
     def set_search_params(self, **params):
         log.info("setting linkedin jobs search params: %s", params)

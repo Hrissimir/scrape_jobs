@@ -42,7 +42,7 @@ upload_spreadsheet_json = Replace with path to secrets.json file.
 """
 
 
-class TestScrapeConfig(TestCase):
+class TestSampleConfig(TestCase):
 
     def test_get_sample_config(self):
         config = scrape_config.get_sample_config()
@@ -54,19 +54,39 @@ class TestScrapeConfig(TestCase):
             scrape_config.print_config(config)
             self.assertEqual(SAMPLE_CONFIG_PRINT, fake_out.getvalue())
 
-    def test_write_config_with_param(self):
+    def test_format_config(self):
+        config = scrape_config.get_sample_config()
+        self.assertEqual(SAMPLE_CONFIG_PRINT, scrape_config.format_config(config))
+
+    def test_write_sample_config_with_file_path_param(self):
         with TemporaryDirectory() as tempdir:
             file_path = Path(tempdir).joinpath(scrape_config.SAMPLE_CONFIG_FILENAME)
-            scrape_config.write_config(str(file_path))
+            scrape_config.write_sample_config(str(file_path))
             self.assertTrue(file_path.exists(), msg=f"No config was written to {str(file_path)} !")
             self.assertEqual(scrape_config.SAMPLE_CONFIG_CONTENTS, file_path.read_text())
 
-    def test_write_config_no_param(self):
+    def test_write_sample_config_no_file_path_param_writes_in_cwd(self):
         cwd = str(Path.cwd())
         with TemporaryDirectory() as tempdir:
             os.chdir(tempdir)
             self.addCleanup(lambda: os.chdir(cwd))
-            scrape_config.write_config()
+            scrape_config.write_sample_config()
             expected_file_path = Path.cwd().joinpath(scrape_config.SAMPLE_CONFIG_FILENAME)
             self.assertTrue(expected_file_path.exists(), "No config file was written to cwd!")
             self.assertEqual(scrape_config.SAMPLE_CONFIG_CONTENTS, expected_file_path.read_text())
+
+    def test_read_config_with_file_path_param(self):
+        with TemporaryDirectory() as tempdir:
+            cfg_path = Path(tempdir).joinpath(scrape_config.SAMPLE_CONFIG_FILENAME)
+            scrape_config.write_sample_config(str(cfg_path))
+            self.assertEqual(scrape_config.get_sample_config(),
+                             scrape_config.read_config(str(cfg_path)))
+
+    def test_read_config_with_no_file_path_param_reads_from_cwd(self):
+        cwd = str(Path.cwd())
+        with TemporaryDirectory() as tempdir:
+            os.chdir(tempdir)
+            self.addCleanup(lambda: os.chdir(cwd))
+            scrape_config.write_sample_config()
+            self.assertEqual(scrape_config.get_sample_config(),
+                             scrape_config.read_config())

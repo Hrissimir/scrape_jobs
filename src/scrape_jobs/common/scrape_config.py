@@ -1,11 +1,14 @@
+import pkgutil
 from configparser import ConfigParser
 from io import StringIO
 from pathlib import Path
 from typing import Optional
+from unittest import mock
 
 from hed_utils.support import log
 
-CONFIG_FILENAME = "scrape-jobs.ini"
+SAMPLE_CONFIG_FILENAME = "scrape-jobs.ini"
+SAMPLE_CONFIG_CONTENTS = pkgutil.get_data("scrape_jobs.common", "scrape-jobs.ini").decode()
 
 
 class Default:
@@ -32,6 +35,54 @@ class LinkedinCom:
     DAYS = "days"
     TIMEZONE = "timezone"
     UPLOAD_WORKSHEET_INDEX = "upload_worksheet_index"
+
+
+def get_sample_config() -> ConfigParser:
+    log.debug("sample config file contents:\n%s", SAMPLE_CONFIG_CONTENTS)
+    config = ConfigParser(interpolation=None)
+    config.read_string(SAMPLE_CONFIG_CONTENTS)
+    return config
+
+
+def print_config(config: ConfigParser):
+    log.debug("printing config details...")
+    for section_name in config.keys():
+        print()
+        print(f"[{section_name}]")
+        section_config = config[section_name]
+        for key in section_config.keys():
+            print(f"{key} = {section_config[key]}")
+
+
+def format_config(config: ConfigParser) -> str:
+    log.debug("formatting config...")
+    with mock.patch("sys.stdout", new=StringIO()) as fake_out:
+        print_config(config)
+        return fake_out.getvalue()
+
+
+def write_sample_config(file_path: Optional[str] = None):
+    log.debug("writing sample config file at: '%s'", file_path)
+    if not file_path:
+        file_path = str(Path.cwd().joinpath(SAMPLE_CONFIG_FILENAME))
+        log.debug("deduced file path '%s'", file_path)
+
+    with open(file_path, "wb") as configfile:
+        configfile.write(SAMPLE_CONFIG_CONTENTS.encode("utf-8"))
+
+
+def read_config(file_path: Optional[str] = None):
+    log.debug("reading config from file: '%s'", file_path)
+    if not file_path:
+        file_path = str(Path.cwd().joinpath(SAMPLE_CONFIG_FILENAME))
+        log.debug("deduced file path: '%s'", file_path)
+
+    config = ConfigParser(interpolation=None)
+    with open(file_path, "r") as configfile:
+        config.read_file(configfile)
+
+    log.debug("done reading config from '%s' got:\n%s", file_path, format_config(config))
+    return config
 
 
 def assert_valid_config(config):
@@ -94,60 +145,3 @@ def assert_valid_config(config):
         msg = "\n".join(lines)
         new_err = AssertionError(msg)
         raise new_err from err
-
-
-def get_sample_config() -> ConfigParser:
-    config = ConfigParser()
-    config[Default.KEY] = {}
-    default = config[Default.KEY]
-    default[Default.UPLOAD_SPREADSHEET_NAME] = "jobs_stats_data"
-    default[Default.UPLOAD_SPREADSHEET_JSON] = "Replace with path to secrets.json file."
-    default[Default.UPLOAD_WORKSHEET_INDEX] = "0"
-
-    config[SeekComAu.KEY] = {}
-    seek = config[SeekComAu.KEY]
-    seek[SeekComAu.WHAT] = "Replace with search query"
-    seek[SeekComAu.WHERE] = "All Sydney NSW"
-    seek[SeekComAu.DAYS] = "3"
-    seek[SeekComAu.TIMEZONE] = "Australia/Sydney"
-    seek[SeekComAu.UPLOAD_WORKSHEET_INDEX] = "0"
-
-    config[LinkedinCom.KEY] = {}
-    linkedin = config[LinkedinCom.KEY]
-    linkedin[LinkedinCom.KEYWORDS] = "Replace with search query"
-    linkedin[LinkedinCom.LOCATION] = "Sydney, New South Wales, Australia"
-    linkedin[LinkedinCom.DATE_POSTED] = "Past Month"
-    linkedin[LinkedinCom.DAYS] = "2"
-    linkedin[LinkedinCom.TIMEZONE] = "Australia/Sydney"
-    linkedin[LinkedinCom.UPLOAD_WORKSHEET_INDEX] = "1"
-
-    log.debug("got sample config:\n%s", format_config(config))
-    return config
-
-
-def format_config(config: ConfigParser) -> str:
-    buffer = StringIO()
-    config.write(buffer)
-    return buffer.getvalue().strip()
-
-
-def read_config(file_path: Optional[str] = None):
-    if not file_path:
-        file_path = str(Path.cwd().joinpath(CONFIG_FILENAME))
-
-    config = ConfigParser()
-    with open(file_path, "r") as configfile:
-        config.read_file(configfile)
-
-    log.debug("read config from '%s' got:\n%s", file_path, format_config(config))
-    return config
-
-
-def write_config(file_path: Optional[str] = None):
-    if not file_path:
-        file_path = str(Path.cwd().joinpath(CONFIG_FILENAME))
-
-    log.debug("writing sample scrape config to: '%s'", file_path)
-    config = get_sample_config()
-    with open(file_path, "w") as configfile:
-        config.write(configfile)

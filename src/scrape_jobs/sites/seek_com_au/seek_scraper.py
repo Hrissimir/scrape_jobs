@@ -77,7 +77,7 @@ def scrape_raw_results(params: ScrapeParams) -> List[dict]:
         utc_datetime = result.get("utc_datetime", None)
         if utc_datetime:
             tz_datetime = time_tool.utc_to_tz(utc_datetime, tz_name)
-            result["utc_datetime"] = tz_datetime.strftime("%Y-%m-%d %H:%M:%S")
+            result["utc_datetime"] = tz_datetime.strftime("%Y-%m-%d %H:%M")
 
     return results
 
@@ -117,11 +117,11 @@ def upload_rows(rows_values: List[List[str]], params: UploadParams):
     google_spreadsheet.append_rows_to_worksheet(rows_values, worksheet)
 
 
-def prepend_scrape_timestamp(rows: List[List[str]], tz_name: str = None):
+def prepend_scrape_timestamp(rows: List[List[str]], tz_name: str = None, fmt="%Y-%m-%d"):
     tz_name = tz_name or time_tool.get_local_tz_name()
     utcnow = time_tool.utc_moment()
     tznow = time_tool.utc_to_tz(utcnow, tz_name)
-    stamp = tznow.strftime("%Y-%m-%d %H:%M:%S")
+    stamp = tznow.strftime(fmt)
     for row in rows:
         row.insert(0, stamp)
 

@@ -1,138 +1,166 @@
-from collections import namedtuple
+import logging
 from configparser import ConfigParser
 from operator import itemgetter
-from typing import List
+from pathlib import Path
+from pprint import pformat
+from typing import List, Dict, NoReturn
 
 from hed_utils.selenium import driver
 from hed_utils.support import google_spreadsheet
 from hed_utils.support import log, time_tool
 
+from scrape_jobs.common.jobs_scraper import ScrapeParams, UploadParams, JobsScraper
 from scrape_jobs.common.result_predicate import MaxDaysAge
-from scrape_jobs.common.scrape_config import Default, LinkedinCom, read_config, assert_valid_config
+from scrape_jobs.common.scrape_config import Default, LinkedinCom
 from scrape_jobs.sites.linkedin_com.linkedin_job_result import LinkedinJobResult
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_page import LinkedinJobsPage
 
-ScrapeParams = namedtuple("ScrapeParams", "keywords location date_posted days tz")
-UploadParams = namedtuple("UploadParams", "spreadsheet_name json_auth_file worksheet_index")
+
+# ScrapeParams = namedtuple("ScrapeParams", "keywords location date_posted days tz")
+# UploadParams = namedtuple("UploadParams", "spreadsheet_name json_auth_file worksheet_index")
 
 
-def get_scrape_params(config: ConfigParser) -> ScrapeParams:
-    cfg = config[LinkedinCom.KEY]
+class LinkedinScrapeParams(ScrapeParams):
+    def __init__(self, keywords: str, location: str, date_posted: str, days: int, tz: str):
+        super().__init__(tz)
+        self.keywords = keywords
+        self.location = location
+        self.date_posted = date_posted
+        self.days = days
 
-    keywords = cfg.get(LinkedinCom.KEYWORDS)
-    location = cfg.get(LinkedinCom.LOCATION)
-    date_posted = cfg.get(LinkedinCom.DATE_POSTED)
-    days = cfg.getint(LinkedinCom.DAYS)
-    tz = cfg.get(LinkedinCom.TIMEZONE)
+    def __repr__(self):
+        return f"LinkedinScrapeParams(" \
+               f"keywords='{self.keywords}', " \
+               f"location='{self.location}', " \
+               f"date_posted='{self.date_posted}', " \
+               f"days={self.days}, " \
+               f"tz='{self.tz}')"
 
-    scrape_params = ScrapeParams(keywords, location, date_posted, days, tz)
-    log.info("parsed scrape params: %s", scrape_params)
-    return scrape_params
-
-
-def get_upload_params(config: ConfigParser) -> UploadParams:
-    spreadsheet_name = config.get(Default.KEY, Default.UPLOAD_SPREADSHEET_NAME)
-    secrets_json = config.get(Default.KEY, Default.UPLOAD_SPREADSHEET_JSON)
-    worksheet_idx = config.getint(LinkedinCom.KEY, LinkedinCom.UPLOAD_WORKSHEET_INDEX)
-
-    params = UploadParams(spreadsheet_name, secrets_json, worksheet_idx)
-    log.info("parsed upload params from config: %s", params)
-    return params
-
-
-def scrape_raw_results(params: ScrapeParams) -> List[dict]:
-    log.info("starting scrape with params: %s", params)
-
-    results = []
-    predicate = MaxDaysAge(params.days)
-
-    driver.start_chrome()
-    try:
-        page = LinkedinJobsPage()
-        results.extend(page.search_and_collect(predicate,
-                                               keywords=params.keywords,
-                                               location=params.location,
-                                               date_posted=params.date_posted))
-    except:
-        log.exception("error during scrape!")
-        driver.save_screenshot("scrape_error.png")
-        driver.save_source("scrape_error.html")
-    finally:
-        driver.quit()
-        log.info("scrape returns %s raw results", len(results))
-        results.sort(key=itemgetter("utc_datetime"))
-
-    # convert the utc_datetime to date in target tz
-    tz_name = params.tz or time_tool.get_local_tz_name()
-    for result in results:
-        utc_datetime = result.get("utc_datetime", None)
-        if utc_datetime:
-            tz_datetime = time_tool.utc_to_tz(utc_datetime, tz_name)
-            result["utc_datetime"] = tz_datetime.strftime("%Y-%m-%d")
-
-    return results
+    @classmethod
+    def parse(cls, config: ConfigParser):
+        log.info("parsing upload params...")
+        cfg = config[LinkedinCom.KEY]
+        keywords = cfg.get(LinkedinCom.KEYWORDS)
+        location = cfg.get(LinkedinCom.LOCATION)
+        date_posted = cfg.get(LinkedinCom.DATE_POSTED)
+        days = cfg.getint(LinkedinCom.DAYS)
+        tz = cfg.get(LinkedinCom.TIMEZONE)
+        return cls(keywords, location, date_posted, days, tz)
 
 
-def prepare_upload_rows(raw_results: List[dict]) -> List[List[str]]:
-    log.info("preparing (%s) results for upload...")
+class LinkedinUploadParams(UploadParams):
+    def __repr__(self):
+        return f"{type(self).__name__}(" \
+               f"spreadsheet_name='{self.spreadsheet_name}', " \
+               f"json_auth_file='{self.json_auth_file}', " \
+               f"worksheet_index={self.worksheet_index})"
 
-    rows = []
-    for result in raw_results:
-        row = []
-
-        for key in LinkedinJobResult.get_dict_keys():
-            value = result.get(key, None)
-            row.append(str(value) if value else "N/A")
-
-        rows.append(row)
-
-    log.info("done - prepared (%s) rows for upload", len(rows))
-    return rows
-
-
-def upload_rows(rows_values: List[List[str]], params: UploadParams):
-    log.info("starting results upload with params: %s...", params)
-
-    spreadsheet = google_spreadsheet.connect(params.spreadsheet_name, params.json_auth_file)
-    worksheet = spreadsheet.get_worksheet(params.worksheet_index)
-
-    # filter pre-existing results
-    url_key_idx = LinkedinJobResult.get_dict_keys().index("url") + 1  # account for the prepended timestamp
-    known_urls = worksheet.col_values(url_key_idx)
-    log.info("...the worksheet already had %s records", len(known_urls))
-    unseen_rows = [row for row in rows_values if not (row[url_key_idx] in known_urls)]
-    log.info("*** uploading '%s' unseen rows (out of %s scraped) *** ... ", len(unseen_rows), len(rows_values))
-
-    google_spreadsheet.append_rows_to_worksheet(unseen_rows, worksheet)
+    @classmethod
+    def parse(cls, config: ConfigParser):
+        log.info("parsing scrape params...")
+        spreadsheet_name = config.get(Default.KEY, Default.UPLOAD_SPREADSHEET_NAME)
+        secrets_json = config.get(Default.KEY, Default.UPLOAD_SPREADSHEET_JSON)
+        worksheet_idx = config.getint(LinkedinCom.KEY, LinkedinCom.UPLOAD_WORKSHEET_INDEX)
+        return cls(spreadsheet_name, secrets_json, worksheet_idx)
 
 
-def prepend_scrape_timestamp(rows: List[List[str]], tz_name: str = None):
-    tz_name = tz_name or time_tool.get_local_tz_name()
-    utcnow = time_tool.utc_moment()
-    tznow = time_tool.utc_to_tz(utcnow, tz_name)
-    stamp = tznow.strftime("%Y-%m-%d")
-    for row in rows:
-        row.insert(0, stamp)
+class LinkedinJobsScraper(JobsScraper):
+
+    @classmethod
+    def get_page(cls) -> LinkedinJobsPage:
+        log.info("creating page object...")
+        return LinkedinJobsPage()
+
+    def get_scrape_params(self) -> LinkedinScrapeParams:
+        return LinkedinScrapeParams.parse(self.config)
+
+    def get_upload_params(self) -> LinkedinUploadParams:
+        return LinkedinUploadParams.parse(self.config)
+
+    def check_for_upload_errors(self) -> NoReturn:
+        log.info("checking for possible upload errors...")
+        upload_params = self.get_upload_params()
+        upload_error = google_spreadsheet.get_possible_append_row_error(
+            spreadsheet_name=upload_params.spreadsheet_name,
+            json_auth_file=upload_params.json_auth_file,
+            worksheet_index=upload_params.worksheet_index,
+            row_len=len(LinkedinJobResult.get_dict_keys()) + 1)
+
+        if upload_error:
+            raise RuntimeError(f"Won't be able to upload results! Reason: {upload_error}")
+        else:
+            log.info("no upload errors should be present!")
+
+    def get_existing_jobs_urls(self) -> List[str]:
+        params = self.get_upload_params()
+        spreadsheet = google_spreadsheet.connect(params.spreadsheet_name, params.json_auth_file)
+        worksheet = spreadsheet.get_worksheet(params.worksheet_index)
+
+        url_key_idx = LinkedinJobResult.get_dict_keys().index("url") + 2
+        log.info("got url column index: %s", url_key_idx)
+
+        known_urls = worksheet.col_values(url_key_idx)
+        log.info("got %s known urls", len(known_urls))
+        log.debug("known urls: \n%s", pformat(known_urls, width=1000))
+        return known_urls
+
+    def scrape_raw_results_data(self, params: LinkedinScrapeParams) -> List[Dict[str, str]]:
+        results = []
+        predicate = MaxDaysAge(params.days)
+
+        try:
+            page = LinkedinJobsPage()
+            results.extend(page.search_and_collect(predicate,
+                                                   keywords=params.keywords,
+                                                   location=params.location,
+                                                   date_posted=params.date_posted))
+        except Exception as err:
+            log.exception("error during linkedin scrape! (%s)", err)
+            driver.save_screenshot("linkedin_scrape_error_screenshot.png")
+            driver.save_source("linkedin_scrape_error_html.txt")
+        finally:
+            log.info("scrape got (%s) raw results", len(results))
+            results.sort(key=itemgetter("utc_datetime"))
+
+        # convert the utc_datetime to date in target tz
+        tz_name = params.tz or time_tool.get_local_tz_name()
+        for result in results:
+            utc_datetime = result.get("utc_datetime", None)
+            if utc_datetime:
+                tz_datetime = time_tool.utc_to_tz(utc_datetime, tz_name)
+                result["utc_datetime"] = tz_datetime.strftime("%Y-%m-%d")
+
+        return results
+
+    def prepare_rows_for_upload(self, raw_results: List[dict]) -> List[List[str]]:
+        log.info("preparing (%s) results for upload...", len(raw_results))
+        rows = []
+        for result in raw_results:
+            row = []
+
+            for key in LinkedinJobResult.get_dict_keys():
+                value = result.get(key, None)
+                row.append(str(value) if value else "N/A")
+
+            rows.append(row)
+
+        log.info("done - prepared (%s) rows for upload", len(rows))
+        log.debug("prepared rows for upload:\n%s", pformat(rows, width=1000))
+        return rows
 
 
 def start(config_file: str):
-    config = read_config(config_file)
-    assert_valid_config(config)
+    scraper = LinkedinJobsScraper(config_file)
+    scraper.start()
 
-    scrape_params = get_scrape_params(config)
-    upload_params = get_upload_params(config)
 
-    upload_error = google_spreadsheet.get_possible_append_row_error(spreadsheet_name=upload_params.spreadsheet_name,
-                                                                    json_auth_file=upload_params.json_auth_file,
-                                                                    worksheet_index=upload_params.worksheet_index,
-                                                                    row_len=len(LinkedinJobResult.get_dict_keys()) + 1)
-    if upload_error:
-        raise RuntimeError(f"Won't be able to upload results! Reason: {upload_error}")
+def main():
+    config_path = Path("/home/re/PycharmProjects/scrape-jobs.ini")
+    print(config_path)
+    log.init(level=logging.INFO)
+    scraper = LinkedinJobsScraper(str(config_path))
+    scraper.start()
 
-    results = scrape_raw_results(scrape_params)
 
-    rows = prepare_upload_rows(results)
-
-    prepend_scrape_timestamp(rows, scrape_params.tz)
-
-    upload_rows(rows, upload_params)
+if __name__ == '__main__':
+    main()

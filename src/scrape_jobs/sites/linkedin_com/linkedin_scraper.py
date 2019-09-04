@@ -14,10 +14,7 @@ from scrape_jobs.common.result_predicate import MaxDaysAge
 from scrape_jobs.common.scrape_config import Default, LinkedinCom
 from scrape_jobs.sites.linkedin_com.linkedin_job_result import LinkedinJobResult
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_page import LinkedinJobsPage
-
-
-# ScrapeParams = namedtuple("ScrapeParams", "keywords location date_posted days tz")
-# UploadParams = namedtuple("UploadParams", "spreadsheet_name json_auth_file worksheet_index")
+from scrape_jobs.sites.linkedin_com.linkedin_search_filters import DatePostedFilter
 
 
 class LinkedinScrapeParams(ScrapeParams):
@@ -42,7 +39,7 @@ class LinkedinScrapeParams(ScrapeParams):
         cfg = config[LinkedinCom.KEY]
         keywords = cfg.get(LinkedinCom.KEYWORDS)
         location = cfg.get(LinkedinCom.LOCATION)
-        date_posted = cfg.get(LinkedinCom.DATE_POSTED)
+        date_posted = cfg.get(LinkedinCom.DATE_POSTED, fallback=DatePostedFilter.PAST_MONTH)
         days = cfg.getint(LinkedinCom.DAYS)
         tz = cfg.get(LinkedinCom.TIMEZONE)
         return cls(keywords, location, date_posted, days, tz)

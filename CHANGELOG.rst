@@ -22,7 +22,9 @@ Version 1.5.0
 - support for passing linkedin.com to scrape-jobs CLI
 
 
-Version 1.5.1
+Version 1.6.1
 =============
 
-- Added date posted filter for linkedin
+- Updated linkedin parser
+- Fixed broken duplicate jobs detection
+- Switched to more readable timestamps

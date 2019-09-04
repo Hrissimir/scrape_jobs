@@ -37,7 +37,7 @@ class SearchFilter(PageElement):
             waiter.poll_for_result(self.is_opened, timeout_seconds=10, default=error)
 
     def click_option(self, name):
-        log.info("clicking option: '%s' ")
+        log.info("clicking option: '%s' ", name)
         option_locator = By.XPATH, self.MODAL_LOCATOR[
             -1] + f"//label[contains(@class,'filter-list__list-item-label')][contains(.,'{name}')]"
         driver.click_element(option_locator)

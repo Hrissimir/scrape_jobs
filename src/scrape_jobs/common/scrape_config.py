@@ -89,7 +89,7 @@ def assert_valid_config(config):
     except AssertionError as err:
         lines = [f"Bad config ({err}, {err.args})! Ensure your file matches the following sample:",
                  "\n-----------SAMPLE START-----------\n",
-                 get_sample_config(),
+                 format_config(get_sample_config()),
                  "\n-----------SAMPLE END-----------\n"]
         msg = "\n".join(lines)
         new_err = AssertionError(msg)

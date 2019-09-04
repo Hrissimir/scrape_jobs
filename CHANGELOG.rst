@@ -34,3 +34,9 @@ Version 1.6.1
 =============
 
 - Improved error message on bad config
+
+
+Version 1.6.2
+=============
+
+- fix for broken config error reporting

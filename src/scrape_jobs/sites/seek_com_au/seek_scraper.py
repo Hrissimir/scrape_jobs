@@ -1,6 +1,9 @@
+import logging
 from collections import namedtuple
 from configparser import ConfigParser
 from operator import itemgetter
+from pathlib import Path
+from pprint import pformat
 from typing import List
 
 from hed_utils.selenium import driver
@@ -36,6 +39,19 @@ def get_upload_params(config: ConfigParser) -> UploadParams:
     return params
 
 
+def get_existing_urls(params: UploadParams) -> List[str]:
+    spreadsheet = google_spreadsheet.connect(params.spreadsheet_name, params.json_auth_file)
+    worksheet = spreadsheet.get_worksheet(params.worksheet_index)
+
+    url_column_index = SeekResult.get_dict_keys().index("url") + 2  # not 0-based account for the prepended timestamp
+    log.info("got url column index: %s", url_column_index)
+
+    known_urls = worksheet.col_values(url_column_index)
+    log.info("got (%s) pre-existing urls", len(known_urls))
+    log.debug("known urls: \n%s", pformat(known_urls, width=1000))
+    return known_urls
+
+
 def scrape_raw_results(params: ScrapeParams) -> List[dict]:
     log.info("starting scrape with params: %s", params)
 
@@ -66,12 +82,21 @@ def scrape_raw_results(params: ScrapeParams) -> List[dict]:
     return results
 
 
-def prepare_upload_rows(raw_results: List[dict]) -> List[List[str]]:
+def prepare_upload_rows(raw_results: List[dict], existing_urls: List[str]) -> List[List[str]]:
     log.info("preparing (%s) results for upload...")
 
     rows = []
+
     for result in raw_results:
         row = []
+
+        url = result.get("url", None)
+
+        if not url:
+            continue
+
+        if url in existing_urls:
+            continue
 
         for key in SeekResult.get_dict_keys():
             value = result.get(key, None)
@@ -89,14 +114,7 @@ def upload_rows(rows_values: List[List[str]], params: UploadParams):
     spreadsheet = google_spreadsheet.connect(params.spreadsheet_name, params.json_auth_file)
     worksheet = spreadsheet.get_worksheet(params.worksheet_index)
 
-    # filter pre-existing results
-    url_key_idx = SeekResult.get_dict_keys().index("url") + 1  # account for the prepended timestamp
-    known_urls = worksheet.col_values(url_key_idx)
-    log.info("...the worksheet already had %s records", len(known_urls))
-    unseen_rows = [row for row in rows_values if not (row[url_key_idx] in known_urls)]
-    log.info("*** uploading '%s' unseen rows (out of %s scraped) *** ... ", len(unseen_rows), len(rows_values))
-
-    google_spreadsheet.append_rows_to_worksheet(unseen_rows, worksheet)
+    google_spreadsheet.append_rows_to_worksheet(rows_values, worksheet)
 
 
 def prepend_scrape_timestamp(rows: List[List[str]], tz_name: str = None):
@@ -124,8 +142,19 @@ def start(config_file: str):
 
     results = scrape_raw_results(scrape_params)
 
-    rows = prepare_upload_rows(results)
+    rows = prepare_upload_rows(results, get_existing_urls(upload_params))
 
     prepend_scrape_timestamp(rows, scrape_params.tz)
 
     upload_rows(rows, upload_params)
+
+
+def main():
+    config_path = Path("/home/re/PycharmProjects/scrape-jobs.ini")
+    print(config_path)
+    log.init(level=logging.INFO)
+    start(str(config_path))
+
+
+if __name__ == '__main__':
+    main()

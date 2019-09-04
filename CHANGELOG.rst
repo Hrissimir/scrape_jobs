@@ -22,7 +22,7 @@ Version 1.5.0
 - support for passing linkedin.com to scrape-jobs CLI
 
 
-Version 1.6.1
+Version 1.6.0
 =============
 
 - Updated linkedin parser

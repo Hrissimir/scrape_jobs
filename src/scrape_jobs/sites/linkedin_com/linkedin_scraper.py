@@ -97,7 +97,7 @@ def upload_rows(rows_values: List[List[str]], params: UploadParams):
     worksheet = spreadsheet.get_worksheet(params.worksheet_index)
 
     # filter pre-existing results
-    url_key_idx = LinkedinJobResult.get_dict_keys().index("url")
+    url_key_idx = LinkedinJobResult.get_dict_keys().index("url") + 1  # account for the prepended timestamp
     known_urls = worksheet.col_values(url_key_idx)
     log.info("...the worksheet already had %s records", len(known_urls))
     unseen_rows = [row for row in rows_values if not (row[url_key_idx] in known_urls)]
@@ -110,7 +110,7 @@ def prepend_scrape_timestamp(rows: List[List[str]], tz_name: str = None):
     tz_name = tz_name or time_tool.get_local_tz_name()
     utcnow = time_tool.utc_moment()
     tznow = time_tool.utc_to_tz(utcnow, tz_name)
-    stamp = tznow.strftime("%Y-%m-%d %H:%M:%S")
+    stamp = tznow.strftime("%Y-%m-%d")
     for row in rows:
         row.insert(0, stamp)
 

@@ -7,8 +7,8 @@ from hed_utils.selenium import driver
 from hed_utils.support import google_spreadsheet
 from hed_utils.support import log, time_tool
 
-from scrape_jobs.common.scrape_config import Default, SeekComAu, read_config, assert_valid_config
 from scrape_jobs.common.result_predicate import MaxDaysAge
+from scrape_jobs.common.scrape_config import Default, SeekComAu, read_config, assert_valid_config
 from scrape_jobs.sites.seek_com_au.seek_page import SeekPage
 from scrape_jobs.sites.seek_com_au.seek_result import SeekResult
 
@@ -90,7 +90,7 @@ def upload_rows(rows_values: List[List[str]], params: UploadParams):
     worksheet = spreadsheet.get_worksheet(params.worksheet_index)
 
     # filter pre-existing results
-    url_key_idx = SeekResult.get_dict_keys().index("url")
+    url_key_idx = SeekResult.get_dict_keys().index("url") + 1  # account for the prepended timestamp
     known_urls = worksheet.col_values(url_key_idx)
     log.info("...the worksheet already had %s records", len(known_urls))
     unseen_rows = [row for row in rows_values if not (row[url_key_idx] in known_urls)]
@@ -118,7 +118,7 @@ def start(config_file: str):
     upload_error = google_spreadsheet.get_possible_append_row_error(spreadsheet_name=upload_params.spreadsheet_name,
                                                                     json_auth_file=upload_params.json_auth_file,
                                                                     worksheet_index=upload_params.worksheet_index,
-                                                                    row_len=len(SeekResult.get_dict_keys())+1)
+                                                                    row_len=len(SeekResult.get_dict_keys()) + 1)
     if upload_error:
         raise RuntimeError(f"Won't be able to upload results! Reason: {upload_error}")
 

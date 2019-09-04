@@ -28,3 +28,9 @@ Version 1.6.0
 - Updated linkedin parser
 - Fixed broken duplicate jobs detection
 - Switched to more readable timestamps
+
+
+Version 1.6.1
+=============
+
+- Improved error message on bad config

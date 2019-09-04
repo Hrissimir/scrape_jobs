@@ -35,31 +35,65 @@ class LinkedinCom:
 
 
 def assert_valid_config(config):
-    assert isinstance(config, ConfigParser)
-    assert Default.KEY in config
-    default = config[Default.KEY]
-    assert Default.UPLOAD_SPREADSHEET_NAME in default
-    assert Default.UPLOAD_SPREADSHEET_JSON in default
-    assert Default.UPLOAD_WORKSHEET_INDEX in default
+    assert isinstance(config, ConfigParser), \
+        f"The provided config was not a ConfigParser instance! ({type(config).__name__})"
 
-    assert SeekComAu.KEY in config
-    seek = config[SeekComAu.KEY]
+    try:
+        assert Default.KEY in config, f"No '[{Default.KEY}]' section in config file"
+        default = config[Default.KEY]
 
-    assert SeekComAu.WHAT in seek
-    assert SeekComAu.WHERE in seek
-    assert SeekComAu.DAYS in seek
-    assert SeekComAu.TIMEZONE in seek
-    assert SeekComAu.UPLOAD_WORKSHEET_INDEX in seek
+        assert Default.UPLOAD_SPREADSHEET_NAME in default, \
+            f"No value for '{Default.UPLOAD_SPREADSHEET_NAME}=' in '[{Default.KEY}]' section"
+        assert Default.UPLOAD_SPREADSHEET_JSON in default, \
+            f"No value for '{Default.UPLOAD_SPREADSHEET_JSON}=' in '[{Default.KEY}]' section"
+        assert Default.UPLOAD_WORKSHEET_INDEX in default, \
+            f"No value for '{Default.UPLOAD_WORKSHEET_INDEX}=' in '[{Default.KEY}]' section"
 
-    assert LinkedinCom.KEY in config
-    linkedin = config[LinkedinCom.KEY]
+        assert SeekComAu.KEY in config, f"No '[{SeekComAu.KEY}]' section in config file"
+        seek = config[SeekComAu.KEY]
 
-    assert LinkedinCom.KEYWORDS in linkedin
-    assert LinkedinCom.LOCATION in linkedin
-    assert LinkedinCom.DATE_POSTED in linkedin
-    assert LinkedinCom.DAYS in linkedin
-    assert LinkedinCom.TIMEZONE in linkedin
-    assert LinkedinCom.UPLOAD_WORKSHEET_INDEX in linkedin
+        assert SeekComAu.WHAT in seek, \
+            f"No value for '{SeekComAu.WHAT}=' in '[{SeekComAu.KEY}]' section!"
+        assert SeekComAu.WHERE in seek, \
+            f"No value for '{SeekComAu.WHERE}=' in '[{SeekComAu.KEY}]' section!"
+        assert SeekComAu.DAYS in seek, \
+            f"No value for '{SeekComAu.DAYS}=' in '[{SeekComAu.KEY}]' section!"
+
+        assert SeekComAu.TIMEZONE in seek, \
+            f"No value for '{SeekComAu.TIMEZONE}=' in '[{SeekComAu.KEY}]' section!"
+
+        assert SeekComAu.UPLOAD_WORKSHEET_INDEX in seek, \
+            f"No value for '{SeekComAu.UPLOAD_WORKSHEET_INDEX}=' in '[{SeekComAu.KEY}]' section!"
+
+        assert LinkedinCom.KEY in config, f"No '[{LinkedinCom.KEY}]' section in config file"
+        linkedin = config[LinkedinCom.KEY]
+
+        assert LinkedinCom.KEYWORDS in linkedin, \
+            f"No value for '{LinkedinCom.KEYWORDS}=' in '[{LinkedinCom.KEY}]' section!"
+
+        assert LinkedinCom.LOCATION in linkedin, \
+            f"No value for '{LinkedinCom.LOCATION}=' in '[{LinkedinCom.KEY}]' section!"
+
+        assert LinkedinCom.DATE_POSTED in linkedin, \
+            f"No value for '{LinkedinCom.DATE_POSTED}=' in '[{LinkedinCom.KEY}]' section!"
+
+        assert LinkedinCom.DAYS in linkedin, \
+            f"No value for '{LinkedinCom.DAYS}=' in '[{LinkedinCom.KEY}]' section!"
+
+        assert LinkedinCom.TIMEZONE in linkedin, \
+            f"No value for '{LinkedinCom.TIMEZONE}=' in '[{LinkedinCom.KEY}]' section!"
+
+        assert LinkedinCom.UPLOAD_WORKSHEET_INDEX in linkedin, \
+            f"No value for '{LinkedinCom.KEYWORDS}=' in '[{LinkedinCom.KEY}]' section!"
+
+    except AssertionError as err:
+        lines = [f"Bad config ({err}, {err.args})! Ensure your file matches the following sample:",
+                 "\n-----------SAMPLE START-----------\n",
+                 get_sample_config(),
+                 "\n-----------SAMPLE END-----------\n"]
+        msg = "\n".join(lines)
+        new_err = AssertionError(msg)
+        raise new_err from err
 
 
 def get_sample_config() -> ConfigParser:

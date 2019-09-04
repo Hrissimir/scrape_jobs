@@ -39,6 +39,7 @@ upload_worksheet_index = 0
 [linkedin.com]
 keywords = Replace with search query
 location = Sydney, New South Wales, Australia
+date_posted = Past Month
 days = 2
 timezone = Australia/Sydney
 upload_worksheet_index = 1""".strip()

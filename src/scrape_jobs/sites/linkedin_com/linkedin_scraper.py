@@ -12,7 +12,7 @@ from scrape_jobs.common.scrape_config import Default, LinkedinCom, read_config, 
 from scrape_jobs.sites.linkedin_com.linkedin_job_result import LinkedinJobResult
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_page import LinkedinJobsPage
 
-ScrapeParams = namedtuple("ScrapeParams", "keywords location days tz")
+ScrapeParams = namedtuple("ScrapeParams", "keywords location date_posted days tz")
 UploadParams = namedtuple("UploadParams", "spreadsheet_name json_auth_file worksheet_index")
 
 
@@ -21,10 +21,11 @@ def get_scrape_params(config: ConfigParser) -> ScrapeParams:
 
     keywords = cfg.get(LinkedinCom.KEYWORDS)
     location = cfg.get(LinkedinCom.LOCATION)
+    date_posted = cfg.get(LinkedinCom.DATE_POSTED)
     days = cfg.getint(LinkedinCom.DAYS)
     tz = cfg.get(LinkedinCom.TIMEZONE)
 
-    scrape_params = ScrapeParams(keywords, location, days, tz)
+    scrape_params = ScrapeParams(keywords, location, date_posted, days, tz)
     log.info("parsed scrape params: %s", scrape_params)
     return scrape_params
 
@@ -48,7 +49,10 @@ def scrape_raw_results(params: ScrapeParams) -> List[dict]:
     driver.start_chrome()
     try:
         page = LinkedinJobsPage()
-        results.extend(page.search_and_collect(predicate, keywords=params.keywords, location=params.location))
+        results.extend(page.search_and_collect(predicate,
+                                               keywords=params.keywords,
+                                               location=params.location,
+                                               date_posted=params.date_posted))
     except:
         log.exception("error during scrape!")
         driver.save_screenshot("scrape_error.png")

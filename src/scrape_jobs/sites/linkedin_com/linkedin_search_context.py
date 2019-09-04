@@ -5,12 +5,15 @@ from scrape_jobs.common.search_context import SearchContext
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_search_bar import LinkedinJobsSearchBar
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_search_form import LinkedinJobsSearchForm
 from scrape_jobs.sites.linkedin_com.linkedin_results_context import LinkedinResultsContext
+from scrape_jobs.sites.linkedin_com.linkedin_search_filters import DatePostedFilter
 from scrape_jobs.sites.linkedin_com.linkedin_search_section import LinkedinSearchSection
 
 
 class LinkedinSearchContext(SearchContext):
     JOBS_SEARCH_FORM = LinkedinJobsSearchForm()
     JOBS_SEARCH_BAR = LinkedinJobsSearchBar()
+    DATE_POSTED_FILTER = DatePostedFilter()
+
     JOBS_RESULTS = LinkedinResultsContext()
 
     @property
@@ -30,6 +33,9 @@ class LinkedinSearchContext(SearchContext):
         self.search_section.set_location(location)
         driver.wait_until_page_loads()
 
+    def set_date_posted(self, date_posted):
+        self.DATE_POSTED_FILTER.set_date_posted(date_posted)
+
     def trigger_search(self):
         self.search_section.trigger_search()
 
@@ -41,6 +47,9 @@ class LinkedinSearchContext(SearchContext):
 
         location = params.pop("location", "")
         self.set_location(location)
+
+        date_posted = params.pop("date_posted", DatePostedFilter.PAST_MONTH)
+        self.set_date_posted(date_posted)
 
     def wait_for_search_complete(self):
         driver.wait_until_visible_element(self.JOBS_RESULTS.LOCATOR)

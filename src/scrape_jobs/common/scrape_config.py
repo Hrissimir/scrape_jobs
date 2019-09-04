@@ -28,6 +28,7 @@ class LinkedinCom:
     KEY = "linkedin.com"
     KEYWORDS = "keywords"
     LOCATION = "location"
+    DATE_POSTED = "date_posted"
     DAYS = "days"
     TIMEZONE = "timezone"
     UPLOAD_WORKSHEET_INDEX = "upload_worksheet_index"
@@ -55,6 +56,7 @@ def assert_valid_config(config):
 
     assert LinkedinCom.KEYWORDS in linkedin
     assert LinkedinCom.LOCATION in linkedin
+    assert LinkedinCom.DATE_POSTED in linkedin
     assert LinkedinCom.DAYS in linkedin
     assert LinkedinCom.TIMEZONE in linkedin
     assert LinkedinCom.UPLOAD_WORKSHEET_INDEX in linkedin
@@ -80,6 +82,7 @@ def get_sample_config() -> ConfigParser:
     linkedin = config[LinkedinCom.KEY]
     linkedin[LinkedinCom.KEYWORDS] = "Replace with search query"
     linkedin[LinkedinCom.LOCATION] = "Sydney, New South Wales, Australia"
+    linkedin[LinkedinCom.DATE_POSTED] = "Past Month"
     linkedin[LinkedinCom.DAYS] = "2"
     linkedin[LinkedinCom.TIMEZONE] = "Australia/Sydney"
     linkedin[LinkedinCom.UPLOAD_WORKSHEET_INDEX] = "1"

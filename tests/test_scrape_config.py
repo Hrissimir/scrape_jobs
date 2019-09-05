@@ -1,15 +1,16 @@
 import os
+import sys
 from configparser import ConfigParser
 from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest import TestCase, mock
+from unittest import TestCase, TestLoader, TextTestRunner, mock
 
 from hed_utils.support import log
 
-import scrape_jobs.sites.linkedin_com.linkedin_config
-import scrape_jobs.sites.seek_com_au.seek_config
 from scrape_jobs.common import scrape_config
+from scrape_jobs.sites.linkedin_com.linkedin_config import LinkedinConfig
+from scrape_jobs.sites.seek_com_au.seek_config import SeekConfig
 
 SAMPLE_CONFIG_PRINT = """
 [DEFAULT]
@@ -128,13 +129,13 @@ class TestScrapeConfig(TestCase):
         self.assertEqual("%Y-%m-%d %H:%M:%S:%f", config.posted_timestamp_format)
 
     def test_seek_config_is_present_and_properly_filled(self):
-        config = scrape_jobs.sites.seek_com_au.seek_config.SeekConfig(self.sample_config)
+        config = SeekConfig(self.sample_config)
         self.assertTrue(config.is_present())
         self.assertTrue(config.is_properly_filled())
         config.assert_is_valid()
 
     def test_seek_config_is_not_present_and_not_properly_filled(self):
-        config = scrape_jobs.sites.seek_com_au.seek_config.SeekConfig(ConfigParser())
+        config = SeekConfig(ConfigParser())
         self.assertFalse(config.is_present())
         with self.assertRaises(AssertionError):
             self.assertFalse(config.is_properly_filled())
@@ -142,7 +143,7 @@ class TestScrapeConfig(TestCase):
             config.assert_is_valid()
 
     def test_seek_config_properties(self):
-        config = scrape_jobs.sites.seek_com_au.seek_config.SeekConfig(self.sample_config)
+        config = SeekConfig(self.sample_config)
         self.assertEqual("jobs_stats_data", config.upload_spreadsheet_name)
         self.assertEqual("Replace with path to default secrets.json file.", config.upload_spreadsheet_json)
         self.assertEqual(0, config.upload_worksheet_index)
@@ -154,13 +155,13 @@ class TestScrapeConfig(TestCase):
         self.assertEqual("All Sydney NSW", config.where)
 
     def test_linkedin_config_is_present_and_properly_filled(self):
-        config = scrape_jobs.sites.linkedin_com.linkedin_config.LinkedinConfig(self.sample_config)
+        config = LinkedinConfig(self.sample_config)
         self.assertTrue(config.is_present())
         self.assertTrue(config.is_properly_filled())
         config.assert_is_valid()
 
     def test_linkedin_config_is_not_present_and_not_properly_filled(self):
-        config = scrape_jobs.sites.seek_com_au.seek_config.SeekConfig(ConfigParser())
+        config = SeekConfig(ConfigParser())
         self.assertFalse(config.is_present())
         with self.assertRaises(AssertionError):
             self.assertFalse(config.is_properly_filled())
@@ -168,7 +169,7 @@ class TestScrapeConfig(TestCase):
             config.assert_is_valid()
 
     def test_linkedin_config_properties(self):
-        config = scrape_jobs.sites.linkedin_com.linkedin_config.LinkedinConfig(self.sample_config)
+        config = LinkedinConfig(self.sample_config)
         self.assertEqual("jobs_stats_data", config.upload_spreadsheet_name)
         self.assertEqual("Replace with path to default secrets.json file.", config.upload_spreadsheet_json)
         self.assertEqual(1, config.upload_worksheet_index)
@@ -179,3 +180,14 @@ class TestScrapeConfig(TestCase):
         self.assertEqual("Replace with exact search keywords as in the UI autocomplete", config.keywords)
         self.assertEqual("Sydney, New South Wales, Australia", config.location)
         self.assertEqual("Past Month", config.date_posted)
+
+
+def main(out=sys.stderr, verbosity=2):
+    loader = TestLoader()
+    suite = loader.loadTestsFromModule(sys.modules[__name__])
+    TextTestRunner(out, verbosity=verbosity).run(suite)
+
+
+if __name__ == '__main__':
+    with open('test_scrape_config.log', 'w') as f:
+        main(f)

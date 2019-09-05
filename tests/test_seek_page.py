@@ -21,8 +21,8 @@ class TestSeekPage(TestCase):
         self.page.go_to()
 
     def test_set_search_params_calls_relevant_methods(self):
-        with mock.patch("scrape_jobs.sites.seek_com_au.seek_page.SeekSearch.set_what") as mock_set_what:
-            with mock.patch("scrape_jobs.sites.seek_com_au.seek_page.SeekSearch.set_where") as mock_set_where:
+        with mock.patch("scrape_jobs.sites.seek_com_au.seek_page.SeekPage.set_what") as mock_set_what:
+            with mock.patch("scrape_jobs.sites.seek_com_au.seek_page.SeekPage.set_where") as mock_set_where:
                 self.page.set_search_params(what=self.WHAT, where=self.WHERE)
                 mock_set_what.assert_called_once_with(self.WHAT)
                 mock_set_where.assert_called_once_with(self.WHERE)

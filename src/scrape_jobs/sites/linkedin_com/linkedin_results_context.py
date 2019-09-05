@@ -14,6 +14,9 @@ class LinkedinResultsContext(ResultsContext):
     JOB_RESULT_ITEM = By.XPATH, RESULTS_LIST[-1] + "/li[contains(@class,'job-result-card')]"
     SEE_MORE_JOBS = By.XPATH, LOCATOR[-1] + "/button[contains(@class,'see-more-jobs')]"
 
+    def is_visible(self) -> bool:
+        return driver.is_visible(self.LOCATOR)
+
     def elements(self) -> List[ElementWrapper]:
         return driver.wait_until_visible_elements(self.JOB_RESULT_ITEM)
 

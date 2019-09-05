@@ -2,13 +2,147 @@ import pkgutil
 from configparser import ConfigParser
 from io import StringIO
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 from unittest import mock
 
 from hed_utils.support import log
 
 SAMPLE_CONFIG_FILENAME = "scrape-jobs.ini"
 SAMPLE_CONFIG_CONTENTS = pkgutil.get_data("scrape_jobs.common", "scrape-jobs.ini").decode()
+
+
+class ScrapeConfig:
+
+    def __init__(self, cfg: ConfigParser):
+        assert isinstance(cfg, ConfigParser), f"Expected ConfigParser , Got: {type(cfg).__name__}"
+        self.cfg = cfg
+
+    def __repr__(self):
+        return f"{type(self).__name__}(section_name='{self.section_name()}', section_keys={self.section_keys()})"
+
+    @classmethod
+    def section_name(cls) -> str:
+        return "DEFAULT"
+
+    @classmethod
+    def section_keys(cls) -> List[str]:
+        return ["upload_spreadsheet_name",
+                "upload_spreadsheet_json",
+                "upload_worksheet_index",
+                "max_post_age_days",
+                "timezone",
+                "scraped_timestamp_format",
+                "posted_timestamp_format"]
+
+    @property
+    def config_section(self):
+        return self.cfg[self.section_name()]
+
+    @property
+    def upload_spreadsheet_name(self) -> str:
+        return self.config_section.get("upload_spreadsheet_name")
+
+    @property
+    def upload_spreadsheet_json(self) -> str:
+        return self.config_section.get("upload_spreadsheet_json")
+
+    @property
+    def upload_worksheet_index(self) -> int:
+        return self.config_section.getint("upload_worksheet_index")
+
+    @property
+    def max_post_age_days(self) -> int:
+        return self.config_section.getint("max_post_age_days")
+
+    @property
+    def timezone(self) -> str:
+        return self.config_section.get("timezone")
+
+    @property
+    def scraped_timestamp_format(self) -> str:
+        return self.config_section.get("scraped_timestamp_format")
+
+    @property
+    def posted_timestamp_format(self) -> str:
+        return self.config_section.get("posted_timestamp_format")
+
+    def is_present(self) -> bool:
+        try:
+            return self.config_section is not None
+        except:
+            return False
+
+    def is_properly_filled(self) -> bool:
+        log.debug("checking if '%s' section is properly filled...", self)
+        try:
+            section = self.config_section
+        except KeyError as kerr:
+            raise AssertionError(
+                f"No [{self.section_name()}] section present! {list(self.cfg.keys())}"
+            ) from kerr
+        actual_keys = list(section.keys())
+        for expected_key in self.section_keys():
+            if expected_key not in actual_keys:
+                log.warning("expected key '%s' not present in actual keys: %s", expected_key, actual_keys)
+
+        all_ok = True
+        for expected_key in self.section_keys():
+            actual_value = section.get(expected_key, fallback=None)
+
+            if actual_value is None:
+                log.warning("could not deduce section value for key: '%s'", expected_key)
+                all_ok = False
+
+        return all_ok
+
+    def assert_is_valid(self):
+        if not self.is_properly_filled():
+            raise AssertionError((f"Invalid config: {self}! "
+                                  f"Ensure your config file matches the following template:\n%s"),
+                                 SAMPLE_CONFIG_CONTENTS)
+
+
+class SeekComAuConfig(ScrapeConfig):
+    def __init__(self, cfg: ConfigParser):
+        super().__init__(cfg)
+
+    @classmethod
+    def section_name(cls) -> str:
+        return "seek.com.au"
+
+    @classmethod
+    def section_keys(cls) -> List[str]:
+        return super().section_keys() + ["what", "where"]
+
+    @property
+    def what(self) -> str:
+        return self.config_section.get("what")
+
+    @property
+    def where(self) -> str:
+        return self.config_section.get("where")
+
+
+class LinkedinComConfig(ScrapeConfig):
+    @classmethod
+    def section_name(cls) -> str:
+        return "linkedin.com"
+
+    @classmethod
+    def section_keys(cls) -> List[str]:
+        return super().section_keys() + ["keywords", "location", "date_posted"]
+
+    @property
+    def keywords(self) -> str:
+        return self.config_section.get("keywords")
+
+    @property
+    def location(self) -> str:
+        return self.config_section.get("location")
+
+    @property
+    def date_posted(self) -> str:
+        return self.config_section.get("date_posted")
 
 
 class Default:

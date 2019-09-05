@@ -1,4 +1,5 @@
 import pkgutil
+from abc import ABC, abstractmethod
 from configparser import ConfigParser
 from io import StringIO
 from pathlib import Path
@@ -11,7 +12,7 @@ DEFAULT_FILENAME = "scrape-jobs.ini"
 DEFAULT_CONTENTS = pkgutil.get_data("scrape_jobs.common", "scrape-jobs.ini").decode()
 
 
-class ScrapeConfig:
+class ScrapeConfig(ABC):
 
     def __init__(self, cfg: ConfigParser):
         assert isinstance(cfg, ConfigParser), f"Expected ConfigParser , Got: {type(cfg).__name__}"
@@ -23,6 +24,10 @@ class ScrapeConfig:
             return f"{type(self).__name__}(section_name='{self.section_name()}', section_data={data}"
         except:
             return f"{type(self).__name__}(section_name='{self.section_name()}', section_keys={self.section_keys()})"
+
+    @abstractmethod
+    def get_search_params(self) -> dict:
+        pass
 
     @classmethod
     def section_name(cls) -> str:

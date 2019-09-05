@@ -31,7 +31,16 @@ def start(config_file: str):
 def main():
     # left for testing
     # config_path = Path("/home/re/CODE/PycharmProjects/scrape-jobs.ini")
-    # start(str(config_path))
+    # config_file = str(config_path)
+    # config = LinkedinConfig(read_config(config_file))
+    # log.info("loaded config:\n%s", config)
+    # page = LinkedinJobsPage()
+    # scraper = LinkedinJobsScraper(config, page)
+    # driver.start_chrome()
+    # scraper.page.go_to()
+    # scraper.page.set_search_params(**scraper.config.get_search_params())
+    # driver.save_source("linkedin_search.html")
+    # driver.quit()
     pass
 
 

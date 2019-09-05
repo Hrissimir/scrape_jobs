@@ -4,7 +4,7 @@ from typing import List
 from hed_utils.selenium.page_objects.base.web_page import WebPage
 from hed_utils.support import log
 
-from scrape_jobs.common.result_predicate import ResultPredicate
+from scrape_jobs.common.result_predicates import ResultPredicate
 from scrape_jobs.common.results_context import ResultsContext
 from scrape_jobs.common.search_context import SearchContext
 

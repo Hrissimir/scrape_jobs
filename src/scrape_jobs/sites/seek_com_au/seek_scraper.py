@@ -10,7 +10,7 @@ from hed_utils.selenium import driver
 from hed_utils.support import google_spreadsheet
 from hed_utils.support import log, time_tool
 
-from scrape_jobs.common.result_predicate import MaxDaysAge
+from scrape_jobs.common.result_predicates import MaxDaysAge
 from scrape_jobs.common.scrape_config import Default, SeekComAu, read_config, assert_valid_config
 from scrape_jobs.sites.seek_com_au.seek_page import SeekPage
 from scrape_jobs.sites.seek_com_au.seek_result import SeekResult

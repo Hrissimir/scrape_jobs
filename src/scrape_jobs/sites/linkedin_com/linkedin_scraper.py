@@ -10,7 +10,7 @@ from hed_utils.support import google_spreadsheet
 from hed_utils.support import log, time_tool
 
 from scrape_jobs.common.jobs_scraper import ScrapeParams, UploadParams, JobsScraper
-from scrape_jobs.common.result_predicate import MaxDaysAge
+from scrape_jobs.common.result_predicates import MaxDaysAge
 from scrape_jobs.common.scrape_config import Default, LinkedinCom
 from scrape_jobs.sites.linkedin_com.linkedin_job_result import LinkedinJobResult
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_page import LinkedinJobsPage
@@ -88,7 +88,7 @@ class LinkedinJobsScraper(JobsScraper):
         else:
             log.info("no upload errors should be present!")
 
-    def get_existing_jobs_urls(self) -> List[str]:
+    def get_known_jobs_urls(self) -> List[str]:
         params = self.get_upload_params()
         spreadsheet = google_spreadsheet.connect(params.spreadsheet_name, params.json_auth_file)
         worksheet = spreadsheet.get_worksheet(params.worksheet_index)
@@ -129,10 +129,10 @@ class LinkedinJobsScraper(JobsScraper):
 
         return results
 
-    def prepare_rows_for_upload(self, raw_results: List[dict]) -> List[List[str]]:
-        log.info("preparing (%s) results for upload...", len(raw_results))
+    def convert_to_rows(self, results_data: List[dict]) -> List[List[str]]:
+        log.info("preparing (%s) results for upload...", len(results_data))
         rows = []
-        for result in raw_results:
+        for result in results_data:
             row = []
 
             for key in LinkedinJobResult.get_dict_keys():

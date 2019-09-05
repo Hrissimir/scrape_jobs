@@ -40,3 +40,10 @@ Version 1.6.2
 =============
 
 - fix for broken config error reporting
+
+
+Version 1.7.0
+=============
+
+- reworked config and scrappers
+- added more config options and better sample confing

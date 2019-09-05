@@ -16,7 +16,9 @@ SAMPLE_CONFIG_PRINT = """
 [DEFAULT]
 upload_spreadsheet_name = jobs_stats_data
 upload_spreadsheet_json = Replace with path to default secrets.json file.
-upload_worksheet_index = 0
+upload_worksheet_index = -1
+upload_worksheet_expected_columns_count = -1
+upload_worksheet_urls_column_index = -1
 max_post_age_days = 2
 timezone = Australia/Sydney
 scraped_timestamp_format = %Y-%m-%d %H:%M:%S:%f
@@ -24,6 +26,8 @@ posted_timestamp_format = %Y-%m-%d %H:%M:%S:%f
 
 [seek.com.au]
 upload_worksheet_index = 0
+upload_worksheet_expected_columns_count = 8
+upload_worksheet_urls_column_index = 6
 max_post_age_days = 3
 timezone = Australia/Sydney
 scraped_timestamp_format = %Y-%m-%d %H:%M
@@ -35,6 +39,8 @@ upload_spreadsheet_json = Replace with path to default secrets.json file.
 
 [linkedin.com]
 upload_worksheet_index = 1
+upload_worksheet_expected_columns_count = 6
+upload_worksheet_urls_column_index = 5
 max_post_age_days = 14
 timezone = Australia/Sydney
 scraped_timestamp_format = %Y-%m-%d %H:%M
@@ -122,7 +128,9 @@ class TestScrapeConfig(TestCase):
         config = scrape_config.ScrapeConfig(self.sample_config)
         self.assertEqual("jobs_stats_data", config.upload_spreadsheet_name)
         self.assertEqual("Replace with path to default secrets.json file.", config.upload_spreadsheet_json)
-        self.assertEqual(0, config.upload_worksheet_index)
+        self.assertEqual(-1, config.upload_worksheet_index)
+        self.assertEqual(-1, config.upload_worksheet_expected_columns_count)
+        self.assertEqual(-1, config.upload_worksheet_urls_column_index)
         self.assertEqual(2, config.max_post_age_days)
         self.assertEqual("Australia/Sydney", config.timezone)
         self.assertEqual("%Y-%m-%d %H:%M:%S:%f", config.scraped_timestamp_format)
@@ -147,6 +155,8 @@ class TestScrapeConfig(TestCase):
         self.assertEqual("jobs_stats_data", config.upload_spreadsheet_name)
         self.assertEqual("Replace with path to default secrets.json file.", config.upload_spreadsheet_json)
         self.assertEqual(0, config.upload_worksheet_index)
+        self.assertEqual(8, config.upload_worksheet_expected_columns_count)
+        self.assertEqual(6, config.upload_worksheet_urls_column_index)
         self.assertEqual(3, config.max_post_age_days)
         self.assertEqual("Australia/Sydney", config.timezone)
         self.assertEqual("%Y-%m-%d %H:%M", config.scraped_timestamp_format)
@@ -173,6 +183,8 @@ class TestScrapeConfig(TestCase):
         self.assertEqual("jobs_stats_data", config.upload_spreadsheet_name)
         self.assertEqual("Replace with path to default secrets.json file.", config.upload_spreadsheet_json)
         self.assertEqual(1, config.upload_worksheet_index)
+        self.assertEqual(6, config.upload_worksheet_expected_columns_count)
+        self.assertEqual(5, config.upload_worksheet_urls_column_index)
         self.assertEqual(14, config.max_post_age_days)
         self.assertEqual("Australia/Sydney", config.timezone)
         self.assertEqual("%Y-%m-%d %H:%M", config.scraped_timestamp_format)

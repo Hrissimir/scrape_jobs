@@ -55,6 +55,14 @@ class ScrapeConfig:
         return self.config_section.getint("upload_worksheet_index")
 
     @property
+    def upload_worksheet_expected_columns_count(self) -> int:
+        return self.config_section.getint("upload_worksheet_expected_columns_count")
+
+    @property
+    def upload_worksheet_urls_column_index(self) -> int:
+        return self.config_section.getint("upload_worksheet_urls_column_index")
+
+    @property
     def max_post_age_days(self) -> int:
         return self.config_section.getint("max_post_age_days")
 
@@ -81,9 +89,7 @@ class ScrapeConfig:
         try:
             section = self.config_section
         except KeyError as kerr:
-            raise AssertionError(
-                f"No [{self.section_name()}] section present! {list(self.cfg.keys())}"
-            ) from kerr
+            raise AssertionError(f"No [{self.section_name()}] section present! {list(self.cfg.keys())}") from kerr
         actual_keys = list(section.keys())
         for expected_key in self.section_keys():
             if expected_key not in actual_keys:

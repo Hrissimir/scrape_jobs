@@ -4,6 +4,7 @@ from scrape_jobs.common.scrape_config import ScrapeConfig
 
 
 class LinkedinConfig(ScrapeConfig):
+
     @classmethod
     def section_name(cls) -> str:
         return "linkedin.com"
@@ -23,3 +24,8 @@ class LinkedinConfig(ScrapeConfig):
     @property
     def date_posted(self) -> str:
         return self.config_section.get("date_posted")
+
+    def get_search_params(self) -> dict:
+        return dict(keywords=self.keywords,
+                    location=self.location,
+                    date_posted=self.date_posted)

@@ -23,3 +23,7 @@ class SeekConfig(ScrapeConfig):
     @property
     def where(self) -> str:
         return self.config_section.get("where")
+
+    def get_search_params(self) -> dict:
+        return dict(what=self.what,
+                    where=self.where)

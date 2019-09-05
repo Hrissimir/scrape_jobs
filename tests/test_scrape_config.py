@@ -111,31 +111,6 @@ class TestScrapeConfig(TestCase):
     def tearDown(self) -> None:
         self.sample_config = None
 
-    def test_default_section_is_present_and_properly_filled(self):
-        config = scrape_config.ScrapeConfig(self.sample_config)
-        self.assertTrue(config.is_present())
-        self.assertTrue(config.is_properly_filled())
-        config.assert_is_valid()
-
-    def test_default_config_is_present_but_not_properly_filled(self):
-        config = scrape_config.ScrapeConfig(ConfigParser())
-        self.assertTrue(config.is_present())
-        self.assertFalse(config.is_properly_filled())
-        with self.assertRaises(AssertionError):
-            config.assert_is_valid()
-
-    def test_default_config_properties(self):
-        config = scrape_config.ScrapeConfig(self.sample_config)
-        self.assertEqual("jobs_stats_data", config.upload_spreadsheet_name)
-        self.assertEqual("Replace with path to default secrets.json file.", config.upload_spreadsheet_json)
-        self.assertEqual(-1, config.upload_worksheet_index)
-        self.assertEqual(-1, config.upload_worksheet_expected_columns_count)
-        self.assertEqual(-1, config.upload_worksheet_urls_column_index)
-        self.assertEqual(2, config.max_post_age_days)
-        self.assertEqual("Australia/Sydney", config.timezone)
-        self.assertEqual("%Y-%m-%d %H:%M:%S:%f", config.scraped_timestamp_format)
-        self.assertEqual("%Y-%m-%d %H:%M:%S:%f", config.posted_timestamp_format)
-
     def test_seek_config_is_present_and_properly_filled(self):
         config = SeekConfig(self.sample_config)
         self.assertTrue(config.is_present())

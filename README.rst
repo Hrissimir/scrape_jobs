@@ -10,14 +10,34 @@ Description
 ===========
 
 
+Currently supported sites
+-------------------------
+
+- linkedin.com
+- seek.com.au
+
+
 Installation
 ------------
 
 `pip install -U scrape_jobs`
 
 
-Sample Usage Instructions
--------------------------
+Short instructions:
+-------------------
+
+- Ensure your machine has available chromedriver in path
+- Prepare upload spreadsheet (detailed instructions bellow)
+- Open cmd / terminal
+- Install / Update from pip with `pip install -U scrape_jobs`
+- Call `scrape-jobs-init-config` to init sample .ini file in the current dir
+- Edit the config file and save
+- Call `scrape-jobs SITE scrape-jobs.ini` and let it roll
+- Check your spreadsheet after execution completes
+
+
+Long Instructions:
+------------------
 
 - Prepare the spreadsheet and the spreadsheet's secrets .json (instructions at the bottom)
 
@@ -63,7 +83,7 @@ The term 'Spreadsheet' refers to a single document that is shown in the GoogleSp
 
 A single 'Spreadsheet' can contain one or more 'worksheets'
 
-Usually a newly created 'Spreadsheed' contains a single 'worksheet' named 'Sheet1'
+Usually a newly created 'Spreadsheet' contains a single 'worksheet' named 'Sheet1'
 
 
 Instructions for preparing a shared Google Spreadsheet CREDENTIALS SECRETS .JSON:

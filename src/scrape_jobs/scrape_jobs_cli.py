@@ -75,7 +75,7 @@ def scrape(site: str, config_file: str):
 
 
 def init_config():
-    file = Path.cwd().joinpath(scrape_config.SAMPLE_CONFIG_FILENAME)
+    file = Path.cwd().joinpath(scrape_config.DEFAULT_FILENAME)
     scrape_config.write_sample_config(str(file))
 
 

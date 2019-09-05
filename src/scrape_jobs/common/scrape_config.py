@@ -7,8 +7,8 @@ from unittest import mock
 
 from hed_utils.support import log
 
-SAMPLE_CONFIG_FILENAME = "scrape-jobs.ini"
-SAMPLE_CONFIG_CONTENTS = pkgutil.get_data("scrape_jobs.common", "scrape-jobs.ini").decode()
+DEFAULT_FILENAME = "scrape-jobs.ini"
+DEFAULT_CONTENTS = pkgutil.get_data("scrape_jobs.common", "scrape-jobs.ini").decode()
 
 
 class ScrapeConfig:
@@ -99,7 +99,7 @@ class ScrapeConfig:
         if not self.is_properly_filled():
             raise AssertionError((f"Invalid config: {self}! "
                                   f"Ensure your config file matches the following template:\n%s"),
-                                 SAMPLE_CONFIG_CONTENTS)
+                                 DEFAULT_CONTENTS)
 
 
 class Default:
@@ -129,9 +129,9 @@ class LinkedinCom:
 
 
 def get_sample_config() -> ConfigParser:
-    log.debug("sample config file contents:\n%s", SAMPLE_CONFIG_CONTENTS)
+    log.debug("sample config file contents:\n%s", DEFAULT_CONTENTS)
     config = ConfigParser(interpolation=None)
-    config.read_string(SAMPLE_CONFIG_CONTENTS)
+    config.read_string(DEFAULT_CONTENTS)
     return config
 
 
@@ -155,17 +155,17 @@ def format_config(config: ConfigParser) -> str:
 def write_sample_config(file_path: Optional[str] = None):
     log.debug("writing sample config file at: '%s'", file_path)
     if not file_path:
-        file_path = str(Path.cwd().joinpath(SAMPLE_CONFIG_FILENAME))
+        file_path = str(Path.cwd().joinpath(DEFAULT_FILENAME))
         log.debug("deduced file path '%s'", file_path)
 
     with open(file_path, "wb") as configfile:
-        configfile.write(SAMPLE_CONFIG_CONTENTS.encode("utf-8"))
+        configfile.write(DEFAULT_CONTENTS.encode("utf-8"))
 
 
 def read_config(file_path: Optional[str] = None):
     log.debug("reading config from file: '%s'", file_path)
     if not file_path:
-        file_path = str(Path.cwd().joinpath(SAMPLE_CONFIG_FILENAME))
+        file_path = str(Path.cwd().joinpath(DEFAULT_FILENAME))
         log.debug("deduced file path: '%s'", file_path)
 
     config = ConfigParser(interpolation=None)

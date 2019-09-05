@@ -1,5 +1,4 @@
 import logging
-from pathlib import Path
 from typing import List
 
 from hed_utils.selenium import driver
@@ -23,6 +22,7 @@ class LinkedinJobsScraper(JobsScraper):
 
 def start(config_file: str):
     config = LinkedinConfig(read_config(config_file))
+    log.info("loaded config:\n%s", config)
     page = LinkedinJobsPage()
     scraper = LinkedinJobsScraper(config, page)
     scraper.start()
@@ -30,31 +30,13 @@ def start(config_file: str):
 
 def main():
     # left for testing
-    from pprint import pprint
-
-    config_path = Path("/home/re/CODE/PycharmProjects/scrape-jobs.ini")
-
-    config = LinkedinConfig(read_config(str(config_path)))
-    page = LinkedinJobsPage()
-
-    scraper = LinkedinJobsScraper(config, page)
-    scraper.check_for_upload_errors()
-
-    # pprint(scraper.get_known_jobs_urls())
+    # config_path = Path("/home/re/CODE/PycharmProjects/scrape-jobs.ini")
     # start(str(config_path))
-
-    results = scraper.scrape_raw_results_data()
-    scraper.set_posted_timestamps(results)
-
-    rows = scraper.convert_to_rows(results)
-    scraper.set_scraped_timestamps(rows)
-
-    pprint(rows, width=1000)
+    pass
 
 
 if __name__ == '__main__':
     log.init(logging.INFO)
-    driver.start_chrome()
     try:
         main()
     except:

@@ -8,6 +8,7 @@ from unittest import TestCase, mock
 from hed_utils.support import log
 
 import scrape_jobs.sites.linkedin_com.linkedin_config
+import scrape_jobs.sites.seek_com_au.seek_config
 from scrape_jobs.common import scrape_config
 
 SAMPLE_CONFIG_PRINT = """
@@ -127,13 +128,13 @@ class TestScrapeConfig(TestCase):
         self.assertEqual("%Y-%m-%d %H:%M:%S:%f", config.posted_timestamp_format)
 
     def test_seek_config_is_present_and_properly_filled(self):
-        config = scrape_config.SeekComAuConfig(self.sample_config)
+        config = scrape_jobs.sites.seek_com_au.seek_config.SeekConfig(self.sample_config)
         self.assertTrue(config.is_present())
         self.assertTrue(config.is_properly_filled())
         config.assert_is_valid()
 
     def test_seek_config_is_not_present_and_not_properly_filled(self):
-        config = scrape_config.SeekComAuConfig(ConfigParser())
+        config = scrape_jobs.sites.seek_com_au.seek_config.SeekConfig(ConfigParser())
         self.assertFalse(config.is_present())
         with self.assertRaises(AssertionError):
             self.assertFalse(config.is_properly_filled())
@@ -141,7 +142,7 @@ class TestScrapeConfig(TestCase):
             config.assert_is_valid()
 
     def test_seek_config_properties(self):
-        config = scrape_config.SeekComAuConfig(self.sample_config)
+        config = scrape_jobs.sites.seek_com_au.seek_config.SeekConfig(self.sample_config)
         self.assertEqual("jobs_stats_data", config.upload_spreadsheet_name)
         self.assertEqual("Replace with path to default secrets.json file.", config.upload_spreadsheet_json)
         self.assertEqual(0, config.upload_worksheet_index)
@@ -159,7 +160,7 @@ class TestScrapeConfig(TestCase):
         config.assert_is_valid()
 
     def test_linkedin_config_is_not_present_and_not_properly_filled(self):
-        config = scrape_config.SeekComAuConfig(ConfigParser())
+        config = scrape_jobs.sites.seek_com_au.seek_config.SeekConfig(ConfigParser())
         self.assertFalse(config.is_present())
         with self.assertRaises(AssertionError):
             self.assertFalse(config.is_properly_filled())

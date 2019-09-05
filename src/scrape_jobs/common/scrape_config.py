@@ -102,27 +102,6 @@ class ScrapeConfig:
                                  SAMPLE_CONFIG_CONTENTS)
 
 
-class SeekComAuConfig(ScrapeConfig):
-    def __init__(self, cfg: ConfigParser):
-        super().__init__(cfg)
-
-    @classmethod
-    def section_name(cls) -> str:
-        return "seek.com.au"
-
-    @classmethod
-    def section_keys(cls) -> List[str]:
-        return super().section_keys() + ["what", "where"]
-
-    @property
-    def what(self) -> str:
-        return self.config_section.get("what")
-
-    @property
-    def where(self) -> str:
-        return self.config_section.get("where")
-
-
 class Default:
     KEY = "DEFAULT"
     UPLOAD_SPREADSHEET_NAME = "upload_spreadsheet_name"

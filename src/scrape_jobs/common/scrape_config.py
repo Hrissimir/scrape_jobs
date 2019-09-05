@@ -18,7 +18,11 @@ class ScrapeConfig:
         self.cfg = cfg
 
     def __repr__(self):
-        return f"{type(self).__name__}(section_name='{self.section_name()}', section_keys={self.section_keys()})"
+        try:
+            data = {key: self.config_section.get(key) for key in self.section_keys()}
+            return f"{type(self).__name__}(section_name='{self.section_name()}', section_data={data}"
+        except:
+            return f"{type(self).__name__}(section_name='{self.section_name()}', section_keys={self.section_keys()})"
 
     @classmethod
     def section_name(cls) -> str:

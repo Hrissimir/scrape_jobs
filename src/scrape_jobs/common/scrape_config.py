@@ -123,28 +123,6 @@ class SeekComAuConfig(ScrapeConfig):
         return self.config_section.get("where")
 
 
-class LinkedinComConfig(ScrapeConfig):
-    @classmethod
-    def section_name(cls) -> str:
-        return "linkedin.com"
-
-    @classmethod
-    def section_keys(cls) -> List[str]:
-        return super().section_keys() + ["keywords", "location", "date_posted"]
-
-    @property
-    def keywords(self) -> str:
-        return self.config_section.get("keywords")
-
-    @property
-    def location(self) -> str:
-        return self.config_section.get("location")
-
-    @property
-    def date_posted(self) -> str:
-        return self.config_section.get("date_posted")
-
-
 class Default:
     KEY = "DEFAULT"
     UPLOAD_SPREADSHEET_NAME = "upload_spreadsheet_name"

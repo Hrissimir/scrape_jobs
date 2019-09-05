@@ -7,6 +7,7 @@ from unittest import TestCase, mock
 
 from hed_utils.support import log
 
+import scrape_jobs.sites.linkedin_com.linkedin_config
 from scrape_jobs.common import scrape_config
 
 SAMPLE_CONFIG_PRINT = """
@@ -152,7 +153,7 @@ class TestScrapeConfig(TestCase):
         self.assertEqual("All Sydney NSW", config.where)
 
     def test_linkedin_config_is_present_and_properly_filled(self):
-        config = scrape_config.LinkedinComConfig(self.sample_config)
+        config = scrape_jobs.sites.linkedin_com.linkedin_config.LinkedinConfig(self.sample_config)
         self.assertTrue(config.is_present())
         self.assertTrue(config.is_properly_filled())
         config.assert_is_valid()
@@ -166,7 +167,7 @@ class TestScrapeConfig(TestCase):
             config.assert_is_valid()
 
     def test_linkedin_config_properties(self):
-        config = scrape_config.LinkedinComConfig(self.sample_config)
+        config = scrape_jobs.sites.linkedin_com.linkedin_config.LinkedinConfig(self.sample_config)
         self.assertEqual("jobs_stats_data", config.upload_spreadsheet_name)
         self.assertEqual("Replace with path to default secrets.json file.", config.upload_spreadsheet_json)
         self.assertEqual(1, config.upload_worksheet_index)

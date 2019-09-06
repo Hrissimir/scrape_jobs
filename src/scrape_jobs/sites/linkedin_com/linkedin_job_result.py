@@ -1,15 +1,12 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
 
 from hed_utils.support import time_tool
 
-from scrape_jobs.common.result import Result
+from scrape_jobs.common.job_result import JobResult
 
 
-class LinkedinJobResult(Result):
-    @classmethod
-    def get_dict_keys(cls) -> List[str]:
-        return ["utc_datetime", "location", "title", "company", "url"]
+class LinkedinJobResult(JobResult):
 
     def get_utc_datetime(self) -> Optional[datetime]:
         try:
@@ -44,10 +41,3 @@ class LinkedinJobResult(Result):
             return url[:url.index("?")]
         except:
             return None
-
-    def as_dict(self):
-        return dict(utc_datetime=self.get_utc_datetime(),
-                    location=self.get_location(),
-                    title=self.get_title(),
-                    company=self.get_company(),
-                    url=self.get_url())

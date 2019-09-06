@@ -5,7 +5,7 @@ from hed_utils.support import log
 from selenium.webdriver.common.by import By
 
 from scrape_jobs.common.results_context import ResultsContext
-from scrape_jobs.sites.seek_com_au.seek_result import SeekResult
+from scrape_jobs.sites.seek_com_au.seek_result import SeekJobResult
 
 
 class SeekResultsContext(ResultsContext):
@@ -19,8 +19,8 @@ class SeekResultsContext(ResultsContext):
     def has_next_page(self) -> bool:
         return driver.is_visible(self.NEXT_PAGE_BUTTON)
 
-    def get_visible_results(self) -> List[SeekResult]:
-        return [SeekResult(e.soup)
+    def get_visible_results(self) -> List[SeekJobResult]:
+        return [SeekJobResult(e.soup)
                 for e
                 in driver.wait_until_visible_elements(self.RESULT_ITEM)]
 

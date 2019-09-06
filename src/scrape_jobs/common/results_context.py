@@ -3,7 +3,7 @@ from typing import List
 
 from hed_utils.support import waiter
 
-from scrape_jobs.common.result import Result
+from scrape_jobs.common.job_result import JobResult
 
 
 class ResultsContext(ABC):
@@ -14,7 +14,7 @@ class ResultsContext(ABC):
     def has_next_page(self) -> bool:
         raise NotImplementedError()
 
-    def get_visible_results(self) -> List[Result]:
+    def get_visible_results(self) -> List[JobResult]:
         raise NotImplementedError()
 
     def go_to_next_page(self):

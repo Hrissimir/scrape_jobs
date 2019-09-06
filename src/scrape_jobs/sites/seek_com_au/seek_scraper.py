@@ -9,7 +9,7 @@ from scrape_jobs.common.jobs_scraper import JobsScraper
 from scrape_jobs.common.scrape_config import read_config
 from scrape_jobs.sites.seek_com_au.seek_config import SeekConfig
 from scrape_jobs.sites.seek_com_au.seek_page import SeekPage
-from scrape_jobs.sites.seek_com_au.seek_result import SeekResult
+from scrape_jobs.sites.seek_com_au.seek_result import SeekJobResult
 
 ScrapeParams = namedtuple("ScrapeParams", "what where days tz")
 UploadParams = namedtuple("UploadParams", "spreadsheet_name json_auth_file worksheet_index")
@@ -20,7 +20,7 @@ class SeekScraper(JobsScraper):
         super().__init__(config, page)
 
     def get_results_keys(self) -> List[str]:
-        return SeekResult.get_dict_keys()
+        return SeekJobResult.keys()
 
 
 def start(config_file: str):

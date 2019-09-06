@@ -4,7 +4,7 @@ from hed_utils.selenium import driver
 from hed_utils.support import log
 
 from scrape_jobs.sites.seek_com_au.seek_page import SeekPage
-from scrape_jobs.sites.seek_com_au.seek_result import SeekResult
+from scrape_jobs.sites.seek_com_au.seek_result import SeekJobResult
 
 
 class TestSeekPage(TestCase):
@@ -59,7 +59,7 @@ class TestSeekPage(TestCase):
         results = self.page.get_visible_results()
         self.assertTrue(len(results) > 1)
         for r in results:
-            self.assertIsInstance(r, SeekResult)
+            self.assertIsInstance(r, SeekJobResult)
 
     def test_can_go_to_next_page(self):
         self.page.set_search_params(what=self.WHAT, where=self.WHERE)

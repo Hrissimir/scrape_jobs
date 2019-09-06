@@ -17,7 +17,7 @@ class LinkedinJobsScraper(JobsScraper):
         super().__init__(config, page)
 
     def get_results_keys(self) -> List[str]:
-        return LinkedinJobResult.get_dict_keys()
+        return LinkedinJobResult.keys()
 
 
 def start(config_file: str):

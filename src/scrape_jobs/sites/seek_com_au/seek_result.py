@@ -4,13 +4,13 @@ from urllib.parse import urljoin
 
 from hed_utils.support import time_tool
 
-from scrape_jobs.common.result import Result
+from scrape_jobs.common.job_result import JobResult
 
 
-class SeekResult(Result):
+class SeekJobResult(JobResult):
 
     @classmethod
-    def get_dict_keys(cls) -> List[str]:
+    def keys(cls) -> List[str]:
         return ["utc_datetime", "location", "title", "company", "classification", "url", "salary"]
 
     def get_utc_datetime(self) -> Optional[datetime]:
@@ -80,12 +80,3 @@ class SeekResult(Result):
             return self.soup.select_one("span[data-automation='jobSalary']").get_text().strip()
         except:
             return None
-
-    def as_dict(self):
-        return dict(utc_datetime=self.get_utc_datetime(),
-                    location=self.get_location(),
-                    title=self.get_title(),
-                    company=self.get_company(),
-                    classification=self.get_classification(),
-                    url=self.get_url(),
-                    salary=self.get_salary())

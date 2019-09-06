@@ -32,7 +32,9 @@ class LinkedinResultsContext(ResultsContext):
         return driver.is_visible(self.SEE_MORE_JOBS, timeout=5)
 
     def get_visible_results(self) -> List[LinkedinJobResult]:
-        return [LinkedinJobResult(e.soup) for e in self.elements()]
+        page_soup = driver.page_soup()
+        results = page_soup.select("ul > li[class~=job-result-card]")
+        return [LinkedinJobResult(result) for result in results]
 
     def go_to_next_page(self):
         self.scroll_to_last()

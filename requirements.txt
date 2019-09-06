@@ -1,1 +1,1 @@
-hed_utils==1.3.3
+hed_utils==1.3.4

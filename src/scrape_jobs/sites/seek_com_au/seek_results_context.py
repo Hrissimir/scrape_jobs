@@ -20,9 +20,11 @@ class SeekResultsContext(ResultsContext):
         return driver.is_visible(self.NEXT_PAGE_BUTTON)
 
     def get_visible_results(self) -> List[SeekJobResult]:
-        return [SeekJobResult(e.soup)
+        page_soup = driver.page_soup()
+
+        return [SeekJobResult(e)
                 for e
-                in driver.wait_until_visible_elements(self.RESULT_ITEM)]
+                in page_soup.select(self.RESULT_ITEM[-1])]
 
     def get_current_page_number(self) -> str:
         try:

@@ -46,4 +46,10 @@ Version 1.7.0
 =============
 
 - reworked config and scrappers
-- added more config options and better sample confing
+- added more config options and better sample config
+
+
+Version 1.7.1
+=============
+
+- optimized results scraping

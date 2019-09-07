@@ -23,6 +23,7 @@ max_post_age_days = 1
 timezone = Australia/Sydney
 scraped_timestamp_format = %Y-%m-%d %H:%M:%S:%f
 posted_timestamp_format = %Y-%m-%d %H:%M:%S:%f
+driver_headless = no
 
 [seek.com.au]
 upload_worksheet_index = 0
@@ -34,6 +35,7 @@ scraped_timestamp_format = %Y-%m-%d %H:%M
 posted_timestamp_format = %Y-%m-%d %H:00
 what = Replace with search query
 where = All Sydney NSW
+driver_headless = yes
 upload_spreadsheet_name = jobs_stats_data
 upload_spreadsheet_json = Replace with path to default secrets.json file.
 
@@ -48,6 +50,7 @@ posted_timestamp_format = %Y-%m-%d
 keywords = Replace with exact search keywords as in the UI autocomplete
 location = Sydney, New South Wales, Australia
 date_posted = Past Month
+driver_headless = yes
 upload_spreadsheet_name = jobs_stats_data
 upload_spreadsheet_json = Replace with path to default secrets.json file.
 """

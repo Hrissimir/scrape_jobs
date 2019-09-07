@@ -175,8 +175,12 @@ class JobsScraper(ABC):
         log.info("scrape started with config: %s", self.config)
         self.check_for_upload_errors()
 
-        log.info("starting chrome driver")
-        driver.start_chrome()
+        log.info("starting chrome driver (headless=%s)", self.config.driver_headless)
+        if self.config.driver_headless:
+            driver.start_chrome(headless=True)
+        else:
+            driver.start_chrome()
+
         try:
             raw_results = self.scrape_raw_results_data()
         except:

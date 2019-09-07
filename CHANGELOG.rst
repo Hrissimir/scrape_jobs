@@ -53,3 +53,11 @@ Version 1.7.1
 =============
 
 - optimized results scraping
+
+
+Version 1.8.0
+=============
+
+- enabled scraping in headless mode (as config setting)
+- updated tests to run in headless mode
+

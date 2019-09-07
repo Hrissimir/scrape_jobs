@@ -41,7 +41,8 @@ class ScrapeConfig(ABC):
                 "max_post_age_days",
                 "timezone",
                 "scraped_timestamp_format",
-                "posted_timestamp_format"]
+                "posted_timestamp_format",
+                "driver_headless"]
 
     @property
     def config_section(self):
@@ -82,6 +83,10 @@ class ScrapeConfig(ABC):
     @property
     def posted_timestamp_format(self) -> str:
         return self.config_section.get("posted_timestamp_format")
+
+    @property
+    def driver_headless(self) -> bool:
+        return self.config_section.getboolean("driver_headless")
 
     def is_present(self) -> bool:
         try:

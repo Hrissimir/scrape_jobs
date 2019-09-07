@@ -1,7 +1,6 @@
 from unittest import TestCase, mock
 
 from hed_utils.selenium import driver
-from hed_utils.support import log
 
 from scrape_jobs.sites.seek_com_au.seek_page import SeekPage
 from scrape_jobs.sites.seek_com_au.seek_result import SeekJobResult
@@ -13,13 +12,15 @@ class TestSeekPage(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        log.init()
+        driver.start_chrome(headless=True)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        driver.quit()
 
     def setUp(self):
-        driver.start_chrome()
-        self.addCleanup(driver.quit)
         self.page = SeekPage()
-        self.page.go_to()
+        self.page.go_to(wait_for_url_changes=False, wait_for_page_load=True)
 
     def test_set_search_params_calls_relevant_methods(self):
         with mock.patch("scrape_jobs.sites.seek_com_au.seek_page.SeekPage.set_what") as mock_set_what:

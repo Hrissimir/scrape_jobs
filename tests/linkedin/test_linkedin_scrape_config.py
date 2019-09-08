@@ -31,7 +31,9 @@ class TestLinkedinScrapeConfig(TestCase):
         self.assertEqual("Replace with exact search keywords as in the UI autocomplete", config.keywords)
         self.assertEqual("Sydney, New South Wales, Australia", config.location)
         self.assertEqual("Past Month", config.date_posted)
+
+    def test_get_search_params(self):
         expected_params = dict(keywords="Replace with exact search keywords as in the UI autocomplete",
                                location="Sydney, New South Wales, Australia",
                                date_posted="Past Month")
-        self.assertDictEqual(expected_params, config.get_search_params())
+        self.assertDictEqual(expected_params, self.config.get_search_params())

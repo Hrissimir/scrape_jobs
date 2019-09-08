@@ -1,32 +1,33 @@
 import pkgutil
-from abc import ABC, abstractmethod
 from configparser import ConfigParser
 from pathlib import Path
 from typing import Optional, List, NoReturn
 
 from hed_utils.support import log
-from hed_utils.support.config_base import ConfigBase
+from hed_utils.support.config_tool import ConfigSection
 
 DEFAULT_FILENAME = "scrape-jobs.ini"
 DEFAULT_CONTENTS = pkgutil.get_data("scrape_jobs.common", "scrape-jobs.ini").decode()
 
 
-class ScrapeConfig(ConfigBase, ABC):
+class ScrapeConfig(ConfigSection):
+    KEYS = ["max_post_age_days",
+            "timezone",
+            "scraped_timestamp_format",
+            "posted_timestamp_format",
+            "driver_headless"]
 
-    def __init__(self, cfg: ConfigParser):
-        super().__init__(cfg)
+    def __init__(self,
+                 section_name: str,
+                 section_keys: List[str],
+                 config: ConfigParser):
+        for key in self.KEYS:
+            assert key in section_keys, f"Missing mandatory key '{key}', {self.KEYS}"
 
-    @abstractmethod
-    def get_search_params(self) -> dict:  # pragma: no cover
-        pass
+        super().__init__(section_name, section_keys, config)
 
-    @classmethod
-    def get_section_keys(cls) -> List[str]:
-        return ["max_post_age_days",
-                "timezone",
-                "scraped_timestamp_format",
-                "posted_timestamp_format",
-                "driver_headless"]
+    def get_search_params(self) -> dict:
+        raise NotImplementedError()
 
     @property
     def max_post_age_days(self) -> int:
@@ -49,14 +50,6 @@ class ScrapeConfig(ConfigBase, ABC):
         return self.get_section().getboolean("driver_headless")
 
 
-def print_config(config):
-    ConfigBase.print_config(config)
-
-
-def format_config(config):
-    return ConfigBase.format_config(config)
-
-
 def get_sample_config() -> ConfigParser:
     log.debug("sample config file contents:\n%s", DEFAULT_CONTENTS)
     config = ConfigParser(interpolation=None)
@@ -72,9 +65,3 @@ def write_sample_config(file_path: Optional[str] = None) -> NoReturn:
 
     with open(file_path, "wb") as configfile:
         configfile.write(DEFAULT_CONTENTS.encode("utf-8"))
-
-
-def read_config(file_path: Optional[str] = None) -> ConfigParser:
-    file_path = file_path or str(Path.cwd().joinpath(DEFAULT_FILENAME))
-
-    return ConfigBase.read_config(file_path)

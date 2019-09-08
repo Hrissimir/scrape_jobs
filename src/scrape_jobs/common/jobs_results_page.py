@@ -1,7 +1,5 @@
 from typing import List
 
-from hed_utils.support import waiter
-
 from scrape_jobs.common.job_result import JobResult
 
 
@@ -18,6 +16,3 @@ class JobsResultsPage:
 
     def go_to_next_page(self):
         raise NotImplementedError()
-
-    def wait_for_results(self):
-        waiter.poll_for_result(self.has_results, timeout_seconds=30, default=TimeoutError)

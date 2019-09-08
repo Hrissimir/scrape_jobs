@@ -31,7 +31,7 @@ class JobResultTest(TestCase):
                              company=company,
                              url=url)
 
-        result = JobResult(BeautifulSoup())
+        result = JobResult(BeautifulSoup(features="lxml"))
         with mock.patch("scrape_jobs.common.job_result.JobResult.values") as mock_values:
             mock_values.side_effect = [list(expected_dict.keys())]
             result.as_dict()

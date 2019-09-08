@@ -61,3 +61,8 @@ Version 1.8.0
 - enabled scraping in headless mode (as config setting)
 - updated tests to run in headless mode
 
+
+Version 1.9.0
+=============
+
+- refactored and re-organized a bit

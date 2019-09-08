@@ -11,7 +11,7 @@ from scrape_jobs.common.jobs_uploader import JobsUploader
 from scrape_jobs.common.scrape_config import read_config
 from scrape_jobs.sites.linkedin_com.linkedin_job_result import LinkedinJobResult
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_page import LinkedinJobsPage
-from scrape_jobs.sites.linkedin_com.linkedin_scrape_config import LinkedinScrapeConfig, LinkedinUploadConfig
+from scrape_jobs.sites.linkedin_com.linkedin_config import LinkedinScrapeConfig, LinkedinUploadConfig
 
 
 class LinkedinJobsScraper(JobsScraper):

@@ -15,7 +15,7 @@ class SeekJobResult(JobResult):
 
     def get_utc_datetime(self) -> Optional[datetime]:
         try:
-            posted = self.soup.select_one("span[data-automation='jobListingDate']").get_text().strip()
+            posted = self.tag.select_one("span[data-automation='jobListingDate']").get_text().strip()
             delta = time_tool.TimedeltaParser.parse(posted)
             return time_tool.utc_moment() - delta
         except:
@@ -23,11 +23,11 @@ class SeekJobResult(JobResult):
 
     def get_location(self) -> Optional[str]:
         try:
-            city = self.soup.select_one("a[data-automation='jobLocation']").get_text().strip()
+            city = self.tag.select_one("a[data-automation='jobLocation']").get_text().strip()
         except:
             city = ""
         try:
-            area = self.soup.select_one("a[data-automation='jobArea']").get_text().strip()
+            area = self.tag.select_one("a[data-automation='jobArea']").get_text().strip()
         except:
             area = ""
 
@@ -39,19 +39,19 @@ class SeekJobResult(JobResult):
 
     def get_title(self) -> Optional[str]:
         try:
-            return self.soup.select_one("a[data-automation='jobTitle']").get_text().strip()
+            return self.tag.select_one("a[data-automation='jobTitle']").get_text().strip()
         except:
             return None
 
     def get_company(self) -> Optional[str]:
         try:
-            return self.soup.select_one("a[data-automation='jobCompany']").get_text().strip()
+            return self.tag.select_one("a[data-automation='jobCompany']").get_text().strip()
         except:
             return None
 
     def get_url(self) -> Optional[str]:
         try:
-            a = self.soup.select_one("a[data-automation='jobTitle']")
+            a = self.tag.select_one("a[data-automation='jobTitle']")
             domain = "https://www.seek.com.au/"
             link = urljoin(domain, a["href"])
             return link[:link.index("?")]
@@ -60,12 +60,12 @@ class SeekJobResult(JobResult):
 
     def get_classification(self) -> Optional[str]:
         try:
-            main_classification = self.soup.select_one("a[data-automation='jobClassification']").get_text().strip()
+            main_classification = self.tag.select_one("a[data-automation='jobClassification']").get_text().strip()
         except:
             main_classification = ""
 
         try:
-            sub_classification = self.soup.select_one("a[data-automation='jobSubClassification']").get_text().strip()
+            sub_classification = self.tag.select_one("a[data-automation='jobSubClassification']").get_text().strip()
         except:
             sub_classification = ""
 
@@ -77,6 +77,6 @@ class SeekJobResult(JobResult):
 
     def get_salary(self) -> Optional[str]:
         try:
-            return self.soup.select_one("span[data-automation='jobSalary']").get_text().strip()
+            return self.tag.select_one("span[data-automation='jobSalary']").get_text().strip()
         except:
             return None

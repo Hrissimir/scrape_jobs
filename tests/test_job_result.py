@@ -12,6 +12,13 @@ class JobResultTest(TestCase):
         expected_keys = ["utc_datetime", "location", "title", "company", "url"]
         self.assertListEqual(expected_keys, JobResult.keys())
 
+    def test_constructor_param(self):
+        instance = JobResult(BeautifulSoup())
+        with self.assertRaises(TypeError):
+            JobResult(None)
+        with self.assertRaises(TypeError):
+            JobResult("")
+
     def test_as_dict(self):
         utc_datetime = time_tool.utc_moment()
         location = "Bulgaria"

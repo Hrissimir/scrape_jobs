@@ -1,14 +1,16 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from bs4 import BeautifulSoup
-from hed_utils.selenium.page_objects.base.element_soup import ElementSoup
+from bs4 import Tag
+from hed_utils.selenium.page_objects.base.element_tag import ElementTag
 
 
-class JobResult(ElementSoup):
+class JobResult(ElementTag):
 
-    def __init__(self, soup: BeautifulSoup):
-        super().__init__(soup)
+    def __init__(self, tag: Tag):
+        if not isinstance(tag, Tag):
+            raise TypeError()
+        super().__init__(tag)
 
     @classmethod
     def keys(cls) -> List[str]:

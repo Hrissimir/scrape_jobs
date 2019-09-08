@@ -30,5 +30,7 @@ class TestSeekScrapeConfig(TestCase):
         self.assertEqual("%Y-%m-%d %H:00", self.config.posted_timestamp_format)
         self.assertEqual("Replace with search query", self.config.what)
         self.assertEqual("All Sydney NSW", self.config.where)
+
+    def test_search_params(self):
         expected_params = dict(what="Replace with search query", where="All Sydney NSW")
         self.assertDictEqual(expected_params, self.config.get_search_params())

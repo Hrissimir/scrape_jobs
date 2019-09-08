@@ -6,7 +6,7 @@ from hed_utils.support import waiter
 from scrape_jobs.common.job_result import JobResult
 
 
-class ResultsContext(ABC):
+class JobsResultsPage(ABC):
 
     def has_results(self) -> bool:
         raise NotImplementedError()

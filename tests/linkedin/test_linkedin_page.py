@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from hed_utils.selenium import driver
 
-from scrape_jobs.sites.linkedin_com.linkedin_results_context import LinkedinResultsContext
+from scrape_jobs.sites.linkedin_com.linkedin_jobs_results_page import LinkedinJobsResultsPage
 from scrape_jobs.sites.linkedin_com.linkedin_search_context import LinkedinSearchContext
 from scrape_jobs.sites.linkedin_com.linkedin_search_section import LinkedinSearchSection
 
@@ -55,7 +55,7 @@ class TestLinkedinStatic(TestCase):
 
     def test_can_find_search_results_elements(self):
         self.load_html(self.LINKEDIN_RESULTS_HTML)
-        jobs: LinkedinResultsContext = self.page.JOBS_RESULTS
+        jobs: LinkedinJobsResultsPage = self.page.JOBS_RESULTS
 
         self.assertTrue(jobs.is_visible())
         self.assertTrue(len(jobs.elements()) == 25)

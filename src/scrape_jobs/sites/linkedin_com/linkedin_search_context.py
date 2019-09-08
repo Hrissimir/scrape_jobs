@@ -4,7 +4,7 @@ from hed_utils.support import log
 from scrape_jobs.common.search_context import SearchContext
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_search_bar import LinkedinJobsSearchBar
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_search_form import LinkedinJobsSearchForm
-from scrape_jobs.sites.linkedin_com.linkedin_results_context import LinkedinResultsContext
+from scrape_jobs.sites.linkedin_com.linkedin_jobs_results_page import LinkedinJobsResultsPage
 from scrape_jobs.sites.linkedin_com.linkedin_search_filters import DatePostedFilter
 from scrape_jobs.sites.linkedin_com.linkedin_search_section import LinkedinSearchSection
 
@@ -14,7 +14,7 @@ class LinkedinSearchContext(SearchContext):
     JOBS_SEARCH_BAR = LinkedinJobsSearchBar()
     DATE_POSTED_FILTER = DatePostedFilter()
 
-    JOBS_RESULTS = LinkedinResultsContext()
+    JOBS_RESULTS = LinkedinJobsResultsPage()
 
     @property
     def search_section(self) -> LinkedinSearchSection:

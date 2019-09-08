@@ -4,11 +4,11 @@ from hed_utils.selenium import driver
 from hed_utils.selenium.wrappers.element_wrapper import ElementWrapper
 from selenium.webdriver.common.by import By
 
-from scrape_jobs.common.results_context import ResultsContext
+from scrape_jobs.common.jobs_results_page import JobsResultsPage
 from scrape_jobs.sites.linkedin_com.linkedin_job_result import LinkedinJobResult
 
 
-class LinkedinResultsContext(ResultsContext):
+class LinkedinJobsResultsPage(JobsResultsPage):
     LOCATOR = By.XPATH, "//main/section[contains(@class,'results__container')]"
     RESULTS_LIST = By.XPATH, LOCATOR[-1] + "/ul"
     JOB_RESULT_ITEM = By.XPATH, RESULTS_LIST[-1] + "/li[contains(@class,'job-result-card')]"

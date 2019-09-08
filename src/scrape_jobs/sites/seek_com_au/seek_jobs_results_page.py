@@ -2,16 +2,18 @@ from typing import List
 
 from hed_utils.selenium import driver
 from hed_utils.support import log
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 
-from scrape_jobs.common.results_context import ResultsContext
+from scrape_jobs.common.jobs_results_page import JobsResultsPage
 from scrape_jobs.sites.seek_com_au.seek_result import SeekJobResult
 
 
-class SeekResultsContext(ResultsContext):
+class SeekJobsResultsPage(JobsResultsPage):
     NEXT_PAGE_BUTTON = By.CSS_SELECTOR, "a[data-automation='page-next']"
 
     RESULT_ITEM = By.CSS_SELECTOR, "div[data-automation='searchResults'] article"
+    RESULTS_LOADER = By.CSS_SELECTOR, "div[data-automation='searchResultsLoader']"
 
     def has_results(self) -> bool:
         return driver.is_visible(self.RESULT_ITEM)
@@ -39,4 +41,20 @@ class SeekResultsContext(ResultsContext):
 
     def go_to_next_page(self):
         log.info("moving to next results page...")
+        try:
+            loader = driver.wait_until_visible_element(self.RESULTS_LOADER, timeout=1)
+            log.info("found results loader element!")  # pragma: no cover
+        except TimeoutException:  # pragma: no cover
+            log.info("no results loader was found")
+            loader = None
+
+        if loader:  # pragma: no cover
+            try:
+                log.info("waiting for results loader to disappear...")
+                driver.wait_until_staleness_of(loader, timeout=10)
+            except TimeoutException:  # pragma: no cover
+                log.info("the result loader is not going away - deleting it from page..")
+                loader.hide_element()
+
+        log.info("clicking NEXT page button...")
         driver.click_element(self.NEXT_PAGE_BUTTON)

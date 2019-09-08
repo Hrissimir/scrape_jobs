@@ -14,6 +14,11 @@ class ResultPredicate(ABC):
 
 class MaxDaysAge(ResultPredicate):
     def __init__(self, days: int):
+        if not isinstance(days, int):
+            raise TypeError()
+        if days <= 0:
+            raise ValueError()
+
         self.mark_date = (time_tool.utc_moment() - timedelta(days=days)).date()
 
     def __call__(self, data: dict) -> bool:

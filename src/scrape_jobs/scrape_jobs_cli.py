@@ -20,6 +20,8 @@ SCRAPERS = {
     "linkedin.com": linkedin_scraper
 }
 
+LOG_FILE = "scrape-jobs.log"
+
 
 def parse_args(args):
     """Parse command line parameters
@@ -81,7 +83,7 @@ def init_config():
 
 def init_logging(level):
     level = level or logging.INFO
-    log_file = Path.cwd().joinpath("scrape-jobs.log")
+    log_file = Path.cwd().joinpath(LOG_FILE)
 
     if log_file.exists():
         try:

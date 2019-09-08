@@ -4,7 +4,7 @@ from pprint import pformat
 from typing import NoReturn, List, Dict
 
 from hed_utils.selenium import driver
-from hed_utils.support import log, google_spreadsheet, time_tool
+from hed_utils.support import log, time_tool
 
 from scrape_jobs.common.jobs_page import JobsPage
 from scrape_jobs.common.result_predicates import MaxDaysAge
@@ -20,17 +20,6 @@ class JobsScraper(ABC):
     @abstractmethod
     def get_results_keys(self) -> List[str]:
         pass
-
-    def check_for_upload_errors(self) -> NoReturn:
-        details = dict(spreadsheet_name=self.config.upload_spreadsheet_name,
-                       json_auth_file=self.config.upload_spreadsheet_json,
-                       worksheet_index=self.config.upload_worksheet_index,
-                       row_len=self.config.upload_worksheet_expected_columns_count)
-        log.info("checking for possible upload errors using details: %s", details)
-        error = google_spreadsheet.get_possible_append_row_error(**details)
-        if error:
-            raise RuntimeError(f"Error will occur upon upload: '{error}'")
-        log.info("found no possible upload errors")
 
     def scrape_raw_results_data(self) -> List[Dict[str, str]]:
         log.info("scraping raw results data begins...")
@@ -85,51 +74,6 @@ class JobsScraper(ABC):
         matching_results.sort(key=itemgetter("utc_datetime"))
         return matching_results
 
-    def get_known_jobs_urls(self) -> List[str]:
-        ss_name = self.config.upload_spreadsheet_name
-        ss_json = self.config.upload_spreadsheet_json
-        ws_idx = self.config.upload_worksheet_index
-        col_idx = self.config.upload_worksheet_urls_column_index
-        details = dict(ss_name=ss_name, ss_json=ss_json, ws_idx=ws_idx, col_idx=col_idx)
-        log.info("retrieving pre-existing jobs urls using details: %s", details)
-
-        spreadsheet = google_spreadsheet.connect(ss_name, ss_json)
-        worksheet = spreadsheet.get_worksheet(ws_idx)
-        urls = worksheet.col_values(col_idx)
-        log.info("got (%s) known / pre-existing job urls in worksheet [%s]", len(urls), ws_idx)
-        log.debug("pre-existing urls: \n%s", pformat(urls, width=1000))
-        return urls[1:]  # skip the first as it's the column name
-
-    def remove_known_results(self, scraped_results: List[dict]) -> List[dict]:
-        log.info("removing pre-existing jobs from '%s' newly scraped results", len(scraped_results))
-        if not scraped_results:
-            log.warning("no scraped results to filter! (%s)", scraped_results)
-            return []
-
-        known_urls = self.get_known_jobs_urls()
-        new_results = [result
-                       for result
-                       in scraped_results
-                       if result["url"] not in known_urls]
-        log.info("new results after duplicates removal: [ %s ] ", len(new_results))
-        return new_results
-
-    def convert_to_rows(self, results_data: List[dict]) -> List[List[str]]:
-        log.info("converting (%s) results data to rows...", len(results_data))
-        rows = []
-        for result in results_data:
-            row = []
-
-            for key in self.get_results_keys():
-                value = result.get(key, None)
-                row.append(str(value) if value else "N/A")
-
-            rows.append(row)
-
-        log.info("prepared (%s) new rows for upload", len(rows))
-        log.debug("prepared rows for upload:\n%s", pformat(rows, width=1000))
-        return rows
-
     def set_posted_timestamps(self, scraped_results: List[dict]) -> NoReturn:
         # convert the utc_datetime to date in target tz
         stamp_fmt = self.config.posted_timestamp_format
@@ -151,29 +95,25 @@ class JobsScraper(ABC):
         for row in rows:
             row.insert(0, stamp)
 
-    def upload_rows(self, rows: List[List[str]]) -> NoReturn:
-        if not rows:
-            log.warning("No rows (%s) were present for upload!", rows)
-            return
+    def convert_to_rows(self, results_data: List[dict]) -> List[List[str]]:
+        log.info("converting (%s) results data to rows...", len(results_data))
+        rows = []
+        for result in results_data:
+            row = []
 
-        spreadsheet_name = self.config.upload_spreadsheet_name
-        json_auth_file = self.config.upload_spreadsheet_json
-        worksheet_index = self.config.upload_worksheet_index
+            for key in self.get_results_keys():
+                value = result.get(key, None)
+                row.append(str(value) if value else "N/A")
 
-        params = dict(spreadsheet_name=spreadsheet_name,
-                      json_auth_file=json_auth_file,
-                      worksheet_index=worksheet_index)
-        log.info("uploading (%s) new rows with params: %s...", len(rows), params)
+            rows.append(row)
 
-        spreadsheet = google_spreadsheet.connect(spreadsheet_name, json_auth_file)
-        worksheet = spreadsheet.get_worksheet(worksheet_index)
+        self.set_scraped_timestamps(rows)
+        log.info("converted (%s) jobs to rows", len(rows))
+        log.debug("got the following jobs rows:\n%s", pformat(rows, width=1000))
+        return rows
 
-        google_spreadsheet.append_rows_to_worksheet(rows, worksheet)
-        log.info("done - uploaded (%s) new rows", len(rows))
-
-    def start(self):
+    def scrape_jobs(self) -> List[List[str]]:
         log.info("scrape started with config: %s", self.config)
-        self.check_for_upload_errors()
 
         log.info("starting chrome driver (headless=%s)", self.config.driver_headless)
         if self.config.driver_headless:
@@ -193,11 +133,7 @@ class JobsScraper(ABC):
             driver.quit()
 
         log.info("scraped (%s) raw results", len(raw_results))
+        self.set_posted_timestamps(raw_results)
 
-        new_results = self.remove_known_results(raw_results)
-        self.set_posted_timestamps(new_results)
-
-        new_rows = self.convert_to_rows(new_results)
-        self.set_scraped_timestamps(new_rows)
-
-        self.upload_rows(new_rows)
+        jobs = self.convert_to_rows(raw_results)
+        return jobs

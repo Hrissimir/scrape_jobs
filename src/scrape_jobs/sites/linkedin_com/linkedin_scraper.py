@@ -1,5 +1,4 @@
 import logging
-from pathlib import Path
 from typing import List
 
 from hed_utils.selenium import driver
@@ -9,9 +8,9 @@ from hed_utils.support.config_base import ConfigBase
 from scrape_jobs.common.jobs_scraper import JobsScraper
 from scrape_jobs.common.jobs_uploader import JobsUploader
 from scrape_jobs.common.scrape_config import read_config
+from scrape_jobs.sites.linkedin_com.linkedin_config import LinkedinScrapeConfig, LinkedinUploadConfig
 from scrape_jobs.sites.linkedin_com.linkedin_job_result import LinkedinJobResult
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_page import LinkedinJobsPage
-from scrape_jobs.sites.linkedin_com.linkedin_config import LinkedinScrapeConfig, LinkedinUploadConfig
 
 
 class LinkedinJobsScraper(JobsScraper):
@@ -41,19 +40,10 @@ def scrape_and_upload(config_file: str):
 
 def main():
     # left for testing
+    from pathlib import Path
     config_path = Path("/home/re/PycharmProjects/scrape-jobs.ini")
     config_file = str(config_path)
     scrape_and_upload(config_file)
-    # config = LinkedinConfig(read_config(config_file))
-    # log.info("loaded config:\n%s", config)
-    # page = LinkedinJobsPage()
-    # scraper = LinkedinJobsScraper(config, page)
-    # driver.start_chrome()
-    # scraper.page.go_to()
-    # scraper.page.set_search_params(**scraper.config.get_search_params())
-    # driver.save_source("linkedin_search.html")
-    # driver.quit()
-    pass
 
 
 if __name__ == '__main__':

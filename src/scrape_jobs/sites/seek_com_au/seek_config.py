@@ -11,7 +11,7 @@ class SeekUploadConfig(UploadConfig):
         return "seek.com.au"
 
 
-class SeekConfig(ScrapeConfig):
+class SeekScrapeConfig(ScrapeConfig):
     def __init__(self, cfg: ConfigParser):
         super().__init__(cfg)
 

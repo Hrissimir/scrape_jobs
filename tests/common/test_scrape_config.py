@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 from unittest import TestCase
 
 from scrape_jobs.common import sample_config
@@ -12,8 +13,14 @@ class TestScrapeConfig(TestCase):
     def tearDown(self) -> None:
         self.config = None
 
-    def test_scrape_config(self):
+    def test_valid(self):
         self.config.assert_valid()
+
+    def test_invalid(self):
+        with self.assertRaises(AssertionError):
+            ScrapeConfig("DEFAULT", ScrapeConfig.KEYS, ConfigParser()).assert_valid()
+
+    def test_scrape_config(self):
         self.assertEqual(1, self.config.max_post_age_days)
         self.assertEqual("Australia/Sydney", self.config.timezone)
         self.assertEqual("%Y-%m-%d %H:%M:%S:%f", self.config.scraped_timestamp_format)

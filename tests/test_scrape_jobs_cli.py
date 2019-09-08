@@ -9,8 +9,8 @@ from scrape_jobs.common import scrape_config
 
 def test_main_processes_args():
     entry_file = str(Path(scrape_jobs_cli.__file__))
-    site = "seek.com.au"
-    config_file = "scrape.ini"
+    site = "target site"
+    config_file = "path to config"
     argv = [entry_file, site, config_file]
     with mock.patch.object(sys, "argv", argv):
         with mock.patch("scrape_jobs.scrape_jobs_cli.scrape") as mock_method:
@@ -24,7 +24,7 @@ def test_scrape_seek():
     config_file = "scrape.ini"
     argv = [entry_file, site, config_file]
     with mock.patch.object(sys, "argv", argv):
-        with mock.patch("scrape_jobs.sites.seek_com_au.seek_scraper.start") as mock_method:
+        with mock.patch("scrape_jobs.sites.seek_com_au.seek_jobs_scraper.scrape_and_upload") as mock_method:
             scrape_jobs_cli.run()
             mock_method.assert_called_once_with(config_file)
 
@@ -35,7 +35,7 @@ def test_scrape_linkedin():
     config_file = "scrape.ini"
     argv = [entry_file, site, config_file]
     with mock.patch.object(sys, "argv", argv):
-        with mock.patch("scrape_jobs.sites.linkedin_com.linkedin_scraper.start") as mock_method:
+        with mock.patch("scrape_jobs.sites.linkedin_com.linkedin_scraper.scrape_and_upload") as mock_method:
             scrape_jobs_cli.run()
             mock_method.assert_called_once_with(config_file)
 

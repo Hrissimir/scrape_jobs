@@ -49,6 +49,14 @@ class ScrapeConfig(ConfigBase, ABC):
         return self.get_section().getboolean("driver_headless")
 
 
+def print_config(config):
+    ConfigBase.print_config(config)
+
+
+def format_config(config):
+    return ConfigBase.format_config(config)
+
+
 def get_sample_config() -> ConfigParser:
     log.debug("sample config file contents:\n%s", DEFAULT_CONTENTS)
     config = ConfigParser(interpolation=None)
@@ -67,4 +75,6 @@ def write_sample_config(file_path: Optional[str] = None) -> NoReturn:
 
 
 def read_config(file_path: Optional[str] = None) -> ConfigParser:
+    file_path = file_path or str(Path.cwd().joinpath(DEFAULT_FILENAME))
+
     return ConfigBase.read_config(file_path)

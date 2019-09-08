@@ -5,11 +5,17 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, mock
 
-from hed_utils.support import log
-
-from scrape_jobs.common import scrape_config
-from scrape_jobs.sites.linkedin_com.linkedin_config import LinkedinConfig
-from scrape_jobs.sites.seek_com_au.seek_config import SeekConfig
+from scrape_jobs.common.scrape_config import (
+    DEFAULT_FILENAME,
+    DEFAULT_CONTENTS,
+    read_config,
+    get_sample_config,
+    print_config,
+    format_config,
+    write_sample_config
+)
+from scrape_jobs.sites.linkedin_com.linkedin_config import LinkedinScrapeConfig, LinkedinUploadConfig
+from scrape_jobs.sites.seek_com_au.seek_config import SeekScrapeConfig, SeekUploadConfig
 
 SAMPLE_CONFIG_PRINT = """
 [DEFAULT]
@@ -58,113 +64,102 @@ upload_spreadsheet_json = Replace with path to default secrets.json file.
 class TestSampleConfig(TestCase):
 
     def test_get_sample_config(self):
-        config = scrape_config.get_sample_config()
+        config = get_sample_config()
         assert isinstance(config, ConfigParser)
 
+    #
     def test_print_sample_config(self):
-        config = scrape_config.get_sample_config()
+        config = get_sample_config()
         with mock.patch("sys.stdout", new=StringIO()) as fake_out:
-            scrape_config.print_config(config)
+            print_config(config)
             self.assertEqual(SAMPLE_CONFIG_PRINT, fake_out.getvalue())
 
+    #
     def test_format_config(self):
-        config = scrape_config.get_sample_config()
-        self.assertEqual(SAMPLE_CONFIG_PRINT, scrape_config.format_config(config))
+        config = get_sample_config()
+        self.assertEqual(SAMPLE_CONFIG_PRINT, format_config(config))
 
     def test_write_sample_config_with_file_path_param(self):
         with TemporaryDirectory() as tempdir:
-            file_path = Path(tempdir).joinpath(scrape_config.DEFAULT_FILENAME)
-            scrape_config.write_sample_config(str(file_path))
+            file_path = Path(tempdir).joinpath(DEFAULT_FILENAME)
+            write_sample_config(str(file_path))
             self.assertTrue(file_path.exists(), msg=f"No config was written to {str(file_path)} !")
-            self.assertEqual(scrape_config.DEFAULT_CONTENTS, file_path.read_text())
+            self.assertEqual(DEFAULT_CONTENTS, file_path.read_text())
 
     def test_write_sample_config_no_file_path_param_writes_in_cwd(self):
         cwd = str(Path.cwd())
         with TemporaryDirectory() as tempdir:
             os.chdir(tempdir)
             self.addCleanup(lambda: os.chdir(cwd))
-            scrape_config.write_sample_config()
-            expected_file_path = Path.cwd().joinpath(scrape_config.DEFAULT_FILENAME)
+            write_sample_config()
+            expected_file_path = Path.cwd().joinpath(DEFAULT_FILENAME)
             self.assertTrue(expected_file_path.exists(), "No config file was written to cwd!")
-            self.assertEqual(scrape_config.DEFAULT_CONTENTS, expected_file_path.read_text())
+            self.assertEqual(DEFAULT_CONTENTS, expected_file_path.read_text())
 
     def test_read_config_with_file_path_param(self):
         with TemporaryDirectory() as tempdir:
-            cfg_path = Path(tempdir).joinpath(scrape_config.DEFAULT_FILENAME)
-            scrape_config.write_sample_config(str(cfg_path))
-            self.assertEqual(scrape_config.get_sample_config(),
-                             scrape_config.read_config(str(cfg_path)))
+            cfg_path = Path(tempdir).joinpath(DEFAULT_FILENAME)
+            write_sample_config(str(cfg_path))
+            self.assertEqual(get_sample_config(), read_config(str(cfg_path)))
 
     def test_read_config_with_no_file_path_param_reads_from_cwd(self):
         cwd = str(Path.cwd())
         with TemporaryDirectory() as tempdir:
             os.chdir(tempdir)
             self.addCleanup(lambda: os.chdir(cwd))
-            scrape_config.write_sample_config()
-            self.assertEqual(scrape_config.get_sample_config(),
-                             scrape_config.read_config())
+            write_sample_config()
+            self.assertEqual(get_sample_config(), read_config())
 
 
 class TestScrapeConfig(TestCase):
-    def setUp(self) -> None:
-        log.init()
-        self.sample_config = scrape_config.get_sample_config()
-
-    def tearDown(self) -> None:
-        self.sample_config = None
 
     def test_seek_config_is_present_and_properly_filled(self):
-        config = SeekConfig(self.sample_config)
+        config = SeekScrapeConfig(get_sample_config())
         self.assertTrue(config.is_present())
-        self.assertTrue(config.is_properly_filled())
-        config.assert_is_valid()
+        config.assert_valid()
 
     def test_seek_config_is_not_present_and_not_properly_filled(self):
-        config = SeekConfig(ConfigParser())
+        config = SeekScrapeConfig(ConfigParser())
         self.assertFalse(config.is_present())
         with self.assertRaises(AssertionError):
-            self.assertFalse(config.is_properly_filled())
-        with self.assertRaises(AssertionError):
-            config.assert_is_valid()
+            config.assert_valid()
 
-    def test_seek_config_properties(self):
-        config = SeekConfig(self.sample_config)
-        self.assertEqual("jobs_stats_data", config.upload_spreadsheet_name)
-        self.assertEqual("Replace with path to default secrets.json file.", config.upload_spreadsheet_json)
-        self.assertEqual(0, config.upload_worksheet_index)
-        self.assertEqual(8, config.upload_worksheet_expected_columns_count)
-        self.assertEqual(7, config.upload_worksheet_urls_column_index)
-        self.assertEqual(2, config.max_post_age_days)
-        self.assertTrue(config.driver_headless)
-        self.assertEqual("Australia/Sydney", config.timezone)
-        self.assertEqual("%Y-%m-%d %H:%M", config.scraped_timestamp_format)
-        self.assertEqual("%Y-%m-%d %H:00", config.posted_timestamp_format)
-        self.assertEqual("Replace with search query", config.what)
-        self.assertEqual("All Sydney NSW", config.where)
+    def test_seek_scrape_config(self):
+        scrape_config = SeekScrapeConfig(get_sample_config())
+
+        self.assertTrue(scrape_config.driver_headless)
+        self.assertEqual(2, scrape_config.max_post_age_days)
+
+        self.assertEqual("Australia/Sydney", scrape_config.timezone)
+        self.assertEqual("%Y-%m-%d %H:%M", scrape_config.scraped_timestamp_format)
+        self.assertEqual("%Y-%m-%d %H:00", scrape_config.posted_timestamp_format)
+        self.assertEqual("Replace with search query", scrape_config.what)
+        self.assertEqual("All Sydney NSW", scrape_config.where)
         expected_params = dict(what="Replace with search query", where="All Sydney NSW")
-        self.assertDictEqual(expected_params, config.get_search_params())
+        self.assertDictEqual(expected_params, scrape_config.get_search_params())
 
-    def test_linkedin_config_is_present_and_properly_filled(self):
-        config = LinkedinConfig(self.sample_config)
+    def test_seek_upload_config(self):
+        upload_config = SeekUploadConfig(get_sample_config())
+        self.assertEqual("jobs_stats_data", upload_config.upload_spreadsheet_name)
+        self.assertEqual("Replace with path to default secrets.json file.", upload_config.upload_spreadsheet_json)
+        self.assertEqual(0, upload_config.upload_worksheet_index)
+        self.assertEqual(8, upload_config.upload_worksheet_expected_columns_count)
+        self.assertEqual(7, upload_config.upload_worksheet_urls_column_index)
+
+    def test_linkedin_scrape_config_is_present(self):
+        config = LinkedinScrapeConfig(get_sample_config())
         self.assertTrue(config.is_present())
-        self.assertTrue(config.is_properly_filled())
-        config.assert_is_valid()
+        config.assert_valid()
 
     def test_linkedin_config_is_not_present_and_not_properly_filled(self):
-        config = SeekConfig(ConfigParser())
+        config = SeekScrapeConfig(ConfigParser())
         self.assertFalse(config.is_present())
         with self.assertRaises(AssertionError):
-            self.assertFalse(config.is_properly_filled())
-        with self.assertRaises(AssertionError):
-            config.assert_is_valid()
+            config.assert_valid()
 
-    def test_linkedin_config_properties(self):
-        config = LinkedinConfig(self.sample_config)
-        self.assertEqual("jobs_stats_data", config.upload_spreadsheet_name)
-        self.assertEqual("Replace with path to default secrets.json file.", config.upload_spreadsheet_json)
-        self.assertEqual(1, config.upload_worksheet_index)
-        self.assertEqual(6, config.upload_worksheet_expected_columns_count)
-        self.assertEqual(6, config.upload_worksheet_urls_column_index)
+    def test_linkedin_scrape_config(self):
+        config = LinkedinScrapeConfig(get_sample_config())
+
         self.assertEqual(14, config.max_post_age_days)
         self.assertTrue(config.driver_headless)
         self.assertEqual("Australia/Sydney", config.timezone)
@@ -177,3 +172,11 @@ class TestScrapeConfig(TestCase):
                                location="Sydney, New South Wales, Australia",
                                date_posted="Past Month")
         self.assertDictEqual(expected_params, config.get_search_params())
+
+    def test_linkedin_upload_config(self):
+        config = LinkedinUploadConfig(get_sample_config())
+        self.assertEqual("jobs_stats_data", config.upload_spreadsheet_name)
+        self.assertEqual("Replace with path to default secrets.json file.", config.upload_spreadsheet_json)
+        self.assertEqual(1, config.upload_worksheet_index)
+        self.assertEqual(6, config.upload_worksheet_expected_columns_count)
+        self.assertEqual(6, config.upload_worksheet_urls_column_index)

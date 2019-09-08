@@ -1,22 +1,17 @@
-from abc import ABC
 from configparser import ConfigParser
-from typing import List
 
-from hed_utils.support.config_base import ConfigBase
+from hed_utils.support.config_tool import ConfigSection
 
 
-class UploadConfig(ConfigBase, ABC):
+class UploadConfig(ConfigSection):
+    KEYS = ["upload_spreadsheet_name",
+            "upload_spreadsheet_json",
+            "upload_worksheet_index",
+            "upload_worksheet_expected_columns_count",
+            "upload_worksheet_urls_column_index"]
 
-    def __init__(self, cfg: ConfigParser):
-        super().__init__(cfg)
-
-    @classmethod
-    def get_section_keys(cls) -> List[str]:
-        return ["upload_spreadsheet_name",
-                "upload_spreadsheet_json",
-                "upload_worksheet_index",
-                "upload_worksheet_expected_columns_count",
-                "upload_worksheet_urls_column_index"]
+    def __init__(self, section_name: str, config: ConfigParser):
+        super().__init__(section_name, self.KEYS, config)
 
     @property
     def upload_spreadsheet_name(self) -> str:

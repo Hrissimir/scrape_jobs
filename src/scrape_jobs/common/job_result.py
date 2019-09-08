@@ -2,10 +2,14 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Optional, List
 
+from bs4 import BeautifulSoup
 from hed_utils.selenium.page_objects.base.element_soup import ElementSoup
 
 
 class JobResult(ElementSoup, ABC):
+
+    def __init__(self, soup: BeautifulSoup):
+        super().__init__(soup)
 
     @classmethod
     def keys(cls) -> List[str]:

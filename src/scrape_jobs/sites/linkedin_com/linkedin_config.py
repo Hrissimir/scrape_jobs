@@ -1,4 +1,4 @@
-from typing import List
+from configparser import ConfigParser
 
 from scrape_jobs.common.scrape_config import ScrapeConfig
 from scrape_jobs.common.upload_config import UploadConfig
@@ -6,20 +6,15 @@ from scrape_jobs.common.upload_config import UploadConfig
 
 class LinkedinUploadConfig(UploadConfig):
 
-    @classmethod
-    def get_section_name(cls) -> str:
-        return "linkedin.com"
+    def __init__(self, config: ConfigParser):
+        super().__init__("linkedin.com", config)
 
 
 class LinkedinScrapeConfig(ScrapeConfig):
+    KEYS = ScrapeConfig.KEYS + ["keywords", "location", "date_posted"]
 
-    @classmethod
-    def get_section_name(cls) -> str:
-        return "linkedin.com"
-
-    @classmethod
-    def get_section_keys(cls) -> List[str]:
-        return super().get_section_keys() + ["keywords", "location", "date_posted"]
+    def __init__(self, config: ConfigParser):
+        super().__init__("linkedin.com", self.KEYS, config)
 
     @property
     def keywords(self) -> str:

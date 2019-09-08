@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 from unittest import mock
 
+import scrape_jobs.common.sample_config
 from scrape_jobs import scrape_jobs_cli
 from scrape_jobs.common import scrape_config
 
@@ -41,7 +42,7 @@ def test_scrape_linkedin():
 
 
 def test_init_config():
-    expected_path = str(Path.cwd().joinpath(scrape_config.DEFAULT_FILENAME))
+    expected_path = str(Path.cwd().joinpath(scrape_jobs.common.sample_config.FILENAME))
     with mock.patch("scrape_jobs.common.scrape_config.write_sample_config") as mock_method:
         scrape_jobs_cli.init_config()
         mock_method.assert_called_once_with(expected_path)

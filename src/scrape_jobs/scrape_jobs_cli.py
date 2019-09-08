@@ -7,7 +7,7 @@ from pathlib import Path
 from hed_utils.support import log
 
 from scrape_jobs import __version__
-from scrape_jobs.common import scrape_config
+from scrape_jobs.common import sample_config
 from scrape_jobs.sites.linkedin_com import linkedin_scraper
 from scrape_jobs.sites.seek_com_au import seek_jobs_scraper
 
@@ -77,8 +77,8 @@ def scrape(site: str, config_file: str):
 
 
 def init_config():
-    file = Path.cwd().joinpath(scrape_config.DEFAULT_FILENAME)
-    scrape_config.write_sample_config(str(file))
+    file = Path.cwd().joinpath(sample_config.FILENAME)
+    sample_config.write_to(str(file))
 
 
 def init_logging(level):
@@ -90,8 +90,8 @@ def init_logging(level):
             log_file.unlink()
         except:  # pragma: no cover
             pass
-
-    log.init(level=level, file=str(log_file))
+    fmt = log.LOG_FORMAT.replace("%(name)s | ", "")
+    log.init(level=level, file=str(log_file), log_format=fmt)
 
 
 def main(args):

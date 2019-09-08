@@ -1,13 +1,7 @@
-import pkgutil
 from configparser import ConfigParser
-from pathlib import Path
-from typing import Optional, List, NoReturn
+from typing import List
 
-from hed_utils.support import log
 from hed_utils.support.config_tool import ConfigSection
-
-DEFAULT_FILENAME = "scrape-jobs.ini"
-DEFAULT_CONTENTS = pkgutil.get_data("scrape_jobs.common", "scrape-jobs.ini").decode()
 
 
 class ScrapeConfig(ConfigSection):
@@ -50,18 +44,3 @@ class ScrapeConfig(ConfigSection):
         return self.get_section().getboolean("driver_headless")
 
 
-def get_sample_config() -> ConfigParser:
-    log.debug("sample config file contents:\n%s", DEFAULT_CONTENTS)
-    config = ConfigParser(interpolation=None)
-    config.read_string(DEFAULT_CONTENTS)
-    return config
-
-
-def write_sample_config(file_path: Optional[str] = None) -> NoReturn:
-    log.debug("writing sample config file at: '%s'", file_path)
-    if not file_path:
-        file_path = str(Path.cwd().joinpath(DEFAULT_FILENAME))
-        log.debug("deduced file path '%s'", file_path)
-
-    with open(file_path, "wb") as configfile:
-        configfile.write(DEFAULT_CONTENTS.encode("utf-8"))

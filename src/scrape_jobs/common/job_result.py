@@ -12,21 +12,21 @@ class JobResult(ElementSoup, ABC):
         return ["utc_datetime", "location", "title", "company", "url"]
 
     @abstractmethod
-    def get_utc_datetime(self) -> Optional[datetime]:
+    def get_utc_datetime(self) -> Optional[datetime]:  # pragma: no cover
         pass
 
     @abstractmethod
-    def get_location(self) -> Optional[str]:
+    def get_location(self) -> Optional[str]:  # pragma: no cover
         pass
 
     @abstractmethod
-    def get_title(self) -> Optional[str]:
+    def get_title(self) -> Optional[str]:  # pragma: no cover
         pass
 
     @abstractmethod
-    def get_company(self) -> Optional[str]:
+    def get_company(self) -> Optional[str]:  # pragma: no cover
         pass
 
     @abstractmethod
-    def get_url(self) -> Optional[str]:
+    def get_url(self) -> Optional[str]:  # pragma: no cover
         pass

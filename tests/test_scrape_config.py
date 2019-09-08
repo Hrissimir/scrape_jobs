@@ -1,10 +1,9 @@
 import os
-import sys
 from configparser import ConfigParser
 from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest import TestCase, TestLoader, TextTestRunner, mock
+from unittest import TestCase, mock
 
 from hed_utils.support import log
 
@@ -136,6 +135,7 @@ class TestScrapeConfig(TestCase):
         self.assertEqual(8, config.upload_worksheet_expected_columns_count)
         self.assertEqual(7, config.upload_worksheet_urls_column_index)
         self.assertEqual(2, config.max_post_age_days)
+        self.assertTrue(config.driver_headless)
         self.assertEqual("Australia/Sydney", config.timezone)
         self.assertEqual("%Y-%m-%d %H:%M", config.scraped_timestamp_format)
         self.assertEqual("%Y-%m-%d %H:00", config.posted_timestamp_format)
@@ -164,20 +164,10 @@ class TestScrapeConfig(TestCase):
         self.assertEqual(6, config.upload_worksheet_expected_columns_count)
         self.assertEqual(6, config.upload_worksheet_urls_column_index)
         self.assertEqual(14, config.max_post_age_days)
+        self.assertTrue(config.driver_headless)
         self.assertEqual("Australia/Sydney", config.timezone)
         self.assertEqual("%Y-%m-%d %H:%M", config.scraped_timestamp_format)
         self.assertEqual("%Y-%m-%d", config.posted_timestamp_format)
         self.assertEqual("Replace with exact search keywords as in the UI autocomplete", config.keywords)
         self.assertEqual("Sydney, New South Wales, Australia", config.location)
         self.assertEqual("Past Month", config.date_posted)
-
-
-def main(out=sys.stderr, verbosity=2):
-    loader = TestLoader()
-    suite = loader.loadTestsFromModule(sys.modules[__name__])
-    TextTestRunner(out, verbosity=verbosity).run(suite)
-
-
-if __name__ == '__main__':
-    with open('test_scrape_config.log', 'w') as f:
-        main(f)

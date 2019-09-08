@@ -26,11 +26,11 @@ class ScrapeConfig(ABC):
             return f"{type(self).__name__}(section_name='{self.section_name()}', section_keys={self.section_keys()})"
 
     @abstractmethod
-    def get_search_params(self) -> dict:
+    def get_search_params(self) -> dict:  # pragma: no cover
         pass
 
     @classmethod
-    def section_name(cls) -> str:
+    def section_name(cls) -> str:  # pragma: no cover
         return "DEFAULT"
 
     @classmethod
@@ -102,14 +102,14 @@ class ScrapeConfig(ABC):
             raise AssertionError(f"No [{self.section_name()}] section present! {list(self.cfg.keys())}") from kerr
         actual_keys = list(section.keys())
         for expected_key in self.section_keys():
-            if expected_key not in actual_keys:
+            if expected_key not in actual_keys:  # pragma: no cover
                 log.warning("expected key '%s' not present in actual keys: %s", expected_key, actual_keys)
 
         all_ok = True
         for expected_key in self.section_keys():
             actual_value = section.get(expected_key, fallback=None)
 
-            if actual_value is None:
+            if actual_value is None:  # pragma: no cover
                 log.warning("could not deduce section value for key: '%s'", expected_key)
                 all_ok = False
 

@@ -86,7 +86,7 @@ def init_logging(level):
     if log_file.exists():
         try:
             log_file.unlink()
-        except:
+        except:  # pragma: no cover
             pass
 
     log.init(level=level, file=str(log_file))
@@ -105,7 +105,7 @@ def main(args):
     log.info("Starting jobs scrape...")
     try:
         scrape(args.site, args.config_file)
-    except:
+    except:  # pragma: no cover
         log.exception("error occurred while scraping!")
         exit(1)
     log.info("Jobs scrape complete!")

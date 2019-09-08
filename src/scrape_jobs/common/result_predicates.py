@@ -8,7 +8,7 @@ from hed_utils.support import time_tool
 class ResultPredicate(ABC):
 
     @abstractmethod
-    def __call__(self, data: dict) -> bool:
+    def __call__(self, data: dict) -> bool:  # pragma: no cover
         pass
 
 

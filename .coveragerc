@@ -2,7 +2,9 @@
 [run]
 branch = True
 source = scrape_jobs
-# omit = bad_file.py
+omit =
+    *__init__*
+    */usr/local/lib*
 
 [paths]
 source =
@@ -26,3 +28,7 @@ exclude_lines =
     # Don't complain if non-runnable code isn't run:
     if 0:
     if __name__ == .__main__.:
+
+omit =
+    *__init__*
+    */usr/local/lib*

@@ -2,10 +2,10 @@ from hed_utils.selenium import driver
 from hed_utils.support import log, waiter
 from selenium.webdriver.common.by import By
 
-from scrape_jobs.common.search_context import SearchContext
+from scrape_jobs.common.jobs_search_page import JobsSearchPage
 
 
-class SeekSearchContext(SearchContext):
+class SeekJobsSearchPage(JobsSearchPage):
     INPUT_WHAT = By.ID, "SearchBar__Keywords"
 
     INPUT_WHERE = By.ID, "SearchBar__Where"

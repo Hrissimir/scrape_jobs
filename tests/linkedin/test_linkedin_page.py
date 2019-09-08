@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 from hed_utils.selenium import driver
 
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_results_page import LinkedinJobsResultsPage
-from scrape_jobs.sites.linkedin_com.linkedin_search_context import LinkedinSearchContext
+from scrape_jobs.sites.linkedin_com.linkedin_jobs_search_page import LinkedinJobsSearchPage
 from scrape_jobs.sites.linkedin_com.linkedin_search_section import LinkedinSearchSection
 
 
@@ -29,7 +29,7 @@ class TestLinkedinStatic(TestCase):
         driver.get(file_url, wait_for_url_changes=False, wait_for_page_load=True)
 
     def setUp(self) -> None:
-        self.page = LinkedinSearchContext()
+        self.page = LinkedinJobsSearchPage()
         self.maxDiff = None
 
     def tearDown(self) -> None:

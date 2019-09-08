@@ -1,7 +1,7 @@
 from hed_utils.selenium import driver
 from hed_utils.support import log
 
-from scrape_jobs.common.search_context import SearchContext
+from scrape_jobs.common.jobs_search_page import JobsSearchPage
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_search_bar import LinkedinJobsSearchBar
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_search_form import LinkedinJobsSearchForm
 from scrape_jobs.sites.linkedin_com.linkedin_jobs_results_page import LinkedinJobsResultsPage
@@ -9,7 +9,7 @@ from scrape_jobs.sites.linkedin_com.linkedin_search_filters import DatePostedFil
 from scrape_jobs.sites.linkedin_com.linkedin_search_section import LinkedinSearchSection
 
 
-class LinkedinSearchContext(SearchContext):
+class LinkedinJobsSearchPage(JobsSearchPage):
     JOBS_SEARCH_FORM = LinkedinJobsSearchForm()
     JOBS_SEARCH_BAR = LinkedinJobsSearchBar()
     DATE_POSTED_FILTER = DatePostedFilter()

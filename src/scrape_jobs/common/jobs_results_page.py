@@ -1,4 +1,3 @@
-from abc import ABC
 from typing import List
 
 from hed_utils.support import waiter
@@ -6,7 +5,7 @@ from hed_utils.support import waiter
 from scrape_jobs.common.job_result import JobResult
 
 
-class JobsResultsPage(ABC):
+class JobsResultsPage:
 
     def has_results(self) -> bool:
         raise NotImplementedError()

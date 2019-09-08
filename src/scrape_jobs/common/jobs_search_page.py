@@ -1,7 +1,4 @@
-from abc import ABC
-
-
-class SearchContext(ABC):
+class JobsSearchPage:
 
     def set_search_params(self, **params):
         raise NotImplementedError()

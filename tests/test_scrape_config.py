@@ -141,6 +141,8 @@ class TestScrapeConfig(TestCase):
         self.assertEqual("%Y-%m-%d %H:00", config.posted_timestamp_format)
         self.assertEqual("Replace with search query", config.what)
         self.assertEqual("All Sydney NSW", config.where)
+        expected_params = dict(what="Replace with search query", where="All Sydney NSW")
+        self.assertDictEqual(expected_params, config.get_search_params())
 
     def test_linkedin_config_is_present_and_properly_filled(self):
         config = LinkedinConfig(self.sample_config)
@@ -171,3 +173,7 @@ class TestScrapeConfig(TestCase):
         self.assertEqual("Replace with exact search keywords as in the UI autocomplete", config.keywords)
         self.assertEqual("Sydney, New South Wales, Australia", config.location)
         self.assertEqual("Past Month", config.date_posted)
+        expected_params = dict(keywords="Replace with exact search keywords as in the UI autocomplete",
+                               location="Sydney, New South Wales, Australia",
+                               date_posted="Past Month")
+        self.assertDictEqual(expected_params, config.get_search_params())

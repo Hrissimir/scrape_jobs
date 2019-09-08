@@ -1,27 +1,19 @@
 from configparser import ConfigParser
-from typing import List
 
 from scrape_jobs.common.scrape_config import ScrapeConfig
 from scrape_jobs.common.upload_config import UploadConfig
 
 
 class SeekUploadConfig(UploadConfig):
-    @classmethod
-    def get_section_name(cls) -> str:
-        return "seek.com.au"
+    def __init__(self, config: ConfigParser):
+        super().__init__("seek.com.au", config)
 
 
 class SeekScrapeConfig(ScrapeConfig):
-    def __init__(self, cfg: ConfigParser):
-        super().__init__(cfg)
+    KEYS = ScrapeConfig.KEYS + ["what", "where"]
 
-    @classmethod
-    def get_section_name(cls) -> str:
-        return "seek.com.au"
-
-    @classmethod
-    def get_section_keys(cls) -> List[str]:
-        return super().get_section_keys() + ["what", "where"]
+    def __init__(self, config: ConfigParser):
+        super().__init__("seek.com.au", self.KEYS, config)
 
     @property
     def what(self) -> str:

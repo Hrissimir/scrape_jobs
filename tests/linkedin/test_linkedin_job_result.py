@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
 from unittest import TestCase
@@ -45,3 +46,26 @@ class TestLinkedinJobResult(TestCase):
             "https://bg.linkedin.com/jobs/view/automation-qa-engineer-virtualization-backup-at-acronis-1452801029"
         actual = self.job.get_url()
         self.assertEqual(expected, actual)
+
+    def test_as_dict(self):
+        expected = OrderedDict(
+            utc_datetime=time_tool.localize(datetime(2019, 9, 6, 0, 0), "UTC"),
+            location="Sofia, BG",
+            title="Automation QA Engineer (Virtualization Backup)",
+            company="Acronis",
+            url="https://bg.linkedin.com/jobs/view/automation-qa-engineer-virtualization-backup-at-acronis-1452801029",
+        )
+        actual = self.job.as_dict()
+        self.assertDictEqual(expected, actual)
+
+    def test_empty_soup(self):
+        soup = BeautifulSoup(features="lxml")
+        job = LinkedinJobResult(soup)
+        expected = OrderedDict(
+            utc_datetime=None,
+            location=None,
+            title=None,
+            company=None,
+            url=None)
+        actual = job.as_dict()
+        self.assertDictEqual(expected, actual)

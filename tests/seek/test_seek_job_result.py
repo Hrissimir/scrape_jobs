@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from datetime import timedelta
 from pathlib import Path
 from unittest import TestCase
@@ -15,6 +16,7 @@ def get_source() -> str:
 
 class TestSeekJobResult(TestCase):
     def setUp(self) -> None:
+        self.maxDiff = None
         self.job = SeekJobResult(BeautifulSoup(get_source(), "lxml"))
 
     def tearDown(self) -> None:
@@ -56,3 +58,31 @@ class TestSeekJobResult(TestCase):
         expected = None
         actual = self.job.get_salary()
         self.assertEqual(expected, actual)
+
+    def test_as_dict(self):
+        expected = OrderedDict(location="Sydney, CBD, Inner West & Eastern Suburbs",
+                               title="Technical Lead - Android / Kotlin / iOS / Swift",
+                               company="Finite IT Recruitment Solutions",
+                               classification="Information & Communication Technology, Developers/Programmers",
+                               url="https://www.seek.com.au/job/39900475",
+                               salary=None)
+        actual = self.job.as_dict()
+
+        self.assertIn("utc_datetime", actual)
+        del actual["utc_datetime"]
+
+        self.assertDictEqual(expected, actual)
+
+    def test_empty_soup(self):
+        soup = BeautifulSoup(features="lxml")
+        job = SeekJobResult(soup)
+        expected = OrderedDict(
+            utc_datetime=None,
+            location=None,
+            title=None,
+            company=None,
+            classification=None,
+            url=None,
+            salary=None)
+        actual = job.as_dict()
+        self.assertDictEqual(expected, actual)

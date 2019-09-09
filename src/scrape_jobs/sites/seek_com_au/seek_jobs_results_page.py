@@ -58,3 +58,8 @@ class SeekJobsResultsPage(JobsResultsPage):
 
         log.info("clicking NEXT page button...")
         driver.click_element(self.NEXT_PAGE_BUTTON)
+
+    def scroll_to_last_result(self):
+        if self.has_results():
+            results = driver.wait_until_visible_elements(self.RESULT_ITEM, timeout=2)
+            results[-1].scroll_into_view()

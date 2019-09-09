@@ -96,7 +96,7 @@ class TestJobsUploader(TestCase):
         actual_urls = uploader.get_known_jobs_urls()
         self.assertListEqual(KNOWN_URLS, actual_urls)
 
-    def test_get_new_jobs(self):
+    def test_get_new_jobs_from_list_with_jobs(self):
         uploader = create_default_uploader()
         new_job = ["scraped", "posted", "location", "title", "company", "url"]
         all_jobs = [
@@ -111,22 +111,57 @@ class TestJobsUploader(TestCase):
             actual_new_jobs = uploader.get_new_jobs(all_jobs)
             self.assertListEqual(expected_new_jobs, actual_new_jobs)
 
+    def test_get_new_jobs_from_list_with_no_jobs(self):
+        uploader = create_default_uploader()
+
+        mock_get_known_jobs_urls = MagicMock()
+        expected_jobs = []
+
+        with patch.object(uploader, "get_known_jobs_urls", mock_get_known_jobs_urls):
+            actual_jobs = uploader.get_new_jobs([])
+
+        mock_get_known_jobs_urls.assert_not_called()
+        self.assertListEqual(expected_jobs, actual_jobs)
+
     def test_upload_jobs(self):
         uploader = create_default_uploader()
 
         a_job = ["scraped", "posted", "location", "title", "company", "url"]
         jobs_for_upload = [a_job]
 
-        mock_get_urls = MagicMock()
-        mock_get_urls.return_value = KNOWN_URLS
+        mock_get_new_jobs = MagicMock()
+        mock_get_new_jobs.return_value = jobs_for_upload
 
         mock_open_worksheet = MagicMock()
         mock_worksheet = object()
         mock_open_worksheet.return_value = mock_worksheet
+
         mock_append_rows = MagicMock()
-        with patch.object(uploader, "open_worksheet", mock_open_worksheet):
-            with patch.object(google_spreadsheet, "append_rows_to_worksheet", mock_append_rows):
-                with patch.object(uploader, "get_known_jobs_urls", mock_get_urls):
+
+        with patch.object(uploader, "get_new_jobs", mock_get_new_jobs):
+            with patch.object(uploader, "open_worksheet", mock_open_worksheet):
+                with patch.object(google_spreadsheet, "append_rows_to_worksheet", mock_append_rows):
                     uploader.upload_jobs(jobs_for_upload)
 
+        mock_get_new_jobs.assert_called_once_with(jobs_for_upload)
+        mock_open_worksheet.assert_called_once()
         mock_append_rows.assert_called_once_with(jobs_for_upload, mock_worksheet)
+
+    def test_upload_jobs_empty_list(self):
+        uploader = create_default_uploader()
+        mock_get_new_jobs = MagicMock()
+
+        mock_open_worksheet = MagicMock()
+        mock_worksheet = object()
+        mock_open_worksheet.return_value = mock_worksheet
+
+        mock_append_rows = MagicMock()
+
+        with patch.object(uploader, "get_new_jobs", mock_get_new_jobs):
+            with patch.object(uploader, "open_worksheet", mock_open_worksheet):
+                with patch.object(google_spreadsheet, "append_rows_to_worksheet", mock_append_rows):
+                    uploader.upload_jobs([])
+
+        mock_get_new_jobs.assert_not_called()
+        mock_open_worksheet.assert_not_called()
+        mock_append_rows.assert_not_called()

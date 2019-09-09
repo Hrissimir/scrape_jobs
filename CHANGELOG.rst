@@ -62,7 +62,9 @@ Version 1.8.0
 - updated tests to run in headless mode
 
 
-Version 1.9.0
+Version 2.0.0
 =============
 
 - refactored and re-organized a bit
+- added more tests
+- updated deps version

@@ -28,6 +28,7 @@ class SearchFilter(PageElement):
     def apply(self):
         log.info("applying '%s' filter", self.name)
         driver.click_element(self.DONE_BUTTON)
+        driver.wait_until_page_loads()
 
     def open_modal(self):
         log.info("opening modal for filter: '%s'", self.name)

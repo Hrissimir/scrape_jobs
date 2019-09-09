@@ -25,3 +25,7 @@ class JobsResultsPageTest(TestCase):
     def test_go_to_next_page(self):
         with self.assertRaises(NotImplementedError):
             self.page.go_to_next_page()
+
+    def test_scroll_to_last_page(self):
+        with self.assertRaises(NotImplementedError):
+            self.page.scroll_to_last_result()

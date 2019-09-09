@@ -16,3 +16,6 @@ class JobsResultsPage:
 
     def go_to_next_page(self):
         raise NotImplementedError()
+
+    def scroll_to_last_result(self):
+        raise NotImplementedError()

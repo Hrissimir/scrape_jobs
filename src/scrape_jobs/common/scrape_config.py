@@ -42,5 +42,3 @@ class ScrapeConfig(ConfigSection):
     @property
     def driver_headless(self) -> bool:
         return self.get_section().getboolean("driver_headless")
-
-

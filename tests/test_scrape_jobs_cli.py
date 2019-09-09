@@ -3,9 +3,8 @@ import sys
 from pathlib import Path
 from unittest import mock
 
-import scrape_jobs.common.sample_config
 from scrape_jobs import scrape_jobs_cli
-from scrape_jobs.common import scrape_config
+from scrape_jobs.common import sample_config
 
 
 def test_main_processes_args():
@@ -42,10 +41,10 @@ def test_scrape_linkedin():
 
 
 def test_init_config():
-    expected_path = str(Path.cwd().joinpath(scrape_jobs.common.sample_config.FILENAME))
-    with mock.patch("scrape_jobs.common.scrape_config.write_sample_config") as mock_method:
+    expected_path = str(Path.cwd().joinpath(sample_config.FILENAME))
+    with mock.patch("scrape_jobs.common.sample_config.write_to") as mock_write:
         scrape_jobs_cli.init_config()
-        mock_method.assert_called_once_with(expected_path)
+        mock_write.assert_called_once_with(expected_path)
 
 
 def test_init_logging_deletes_pre_existing_log():

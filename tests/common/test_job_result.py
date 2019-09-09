@@ -13,7 +13,7 @@ class JobResultTest(TestCase):
         self.assertListEqual(expected_keys, JobResult.keys())
 
     def test_constructor_param(self):
-        JobResult(BeautifulSoup())
+        JobResult(BeautifulSoup(features="lxml"))
         with self.assertRaises(TypeError):
             JobResult(None)
         with self.assertRaises(TypeError):

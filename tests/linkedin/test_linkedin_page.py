@@ -87,5 +87,4 @@ class TestLinkedinStatic(TestCase):
                              "OrderedDict([('utc_datetime', datetime.datetime(2019, 8, 22, 0, 0, tzinfo=<UTC>)), ('location', 'Sofia, BG'), ('title', 'QA Specialist | New R&D Center'), ('company', 'JTR'), ('url', 'https://bg.linkedin.com/jobs/view/qa-specialist-new-r-d-center-at-jtr-1450820005')])]"
         actual_jobs = [j.as_dict() for j in jobs.get_visible_results()]
         actual_jobs_text = repr(actual_jobs)
-        print(actual_jobs_text)
         self.assertEqual(expected_jobs_text, actual_jobs_text)

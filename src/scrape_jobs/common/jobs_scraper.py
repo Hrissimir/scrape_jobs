@@ -70,6 +70,7 @@ class JobsScraper(ABC):
                 page.wait_for_search_complete()
             else:
                 log.warning("No NEXT results page present - Done searching!")
+                break
 
         matching_results.sort(key=itemgetter("utc_datetime"))
         return matching_results

@@ -68,3 +68,9 @@ Version 2.0.0
 - refactored and re-organized a bit
 - added more tests
 - updated deps version
+
+
+Version 2.0.1
+=============
+
+- fix for endless loop when no next results page

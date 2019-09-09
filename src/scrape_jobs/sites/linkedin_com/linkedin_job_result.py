@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from hed_utils.support import time_tool
 
@@ -7,6 +7,9 @@ from scrape_jobs.common.job_result import JobResult
 
 
 class LinkedinJobResult(JobResult):
+    @classmethod
+    def keys(cls) -> List[str]:
+        return ["utc_datetime", "location", "title", "company", "url"]
 
     def get_utc_datetime(self) -> Optional[datetime]:
         try:

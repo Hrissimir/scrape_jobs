@@ -64,6 +64,8 @@ class JobsScraper(ABC):
                     log.warning("second time no matching results - done iterating!")
                     break
 
+            page.scroll_to_last_result()
+
             if page.has_next_page():
                 log.info("Proceeding to next results page...")
                 page.go_to_next_page()

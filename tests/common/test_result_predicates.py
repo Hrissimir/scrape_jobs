@@ -24,12 +24,17 @@ class MaxDaysAgeTest(TestCase):
         with self.assertRaises(TypeError):
             MaxDaysAge(None)
 
-    def test_check_matching_result(self):
-        result = dict(utc_datetime=(time_tool.utc_moment() - timedelta(days=2)))
+    def test_check_matching_job(self):
+        job = dict(utc_datetime=(time_tool.utc_moment() - timedelta(days=2)))
         predicate = MaxDaysAge(3)
-        self.assertTrue(predicate(result))
+        self.assertTrue(predicate(job))
 
-    def test_check_mismatching_result(self):
-        result = dict(utc_datetime=(time_tool.utc_moment() - timedelta(days=2)))
+    def test_check_mismatching_job(self):
+        job = dict(utc_datetime=(time_tool.utc_moment() - timedelta(days=2)))
         predicate = MaxDaysAge(1)
-        self.assertFalse(predicate(result))
+        self.assertFalse(predicate(job))
+
+    def test_check_job_with_no_utc_datetime(self):
+        job = dict()
+        predicate = MaxDaysAge(2)
+        self.assertFalse(predicate(job))

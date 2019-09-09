@@ -23,12 +23,8 @@ class LinkedinJobsResultsPage(JobsResultsPage):
     def has_results(self) -> bool:
         return driver.is_visible(self.JOB_RESULT_ITEM)
 
-    def scroll_to_last(self):
-        if self.has_results():
-            self.elements()[-1].scroll_into_view()
-
     def has_next_page(self) -> bool:
-        self.scroll_to_last()
+        self.scroll_to_last_result()
         return driver.is_visible(self.SEE_MORE_JOBS, timeout=5)
 
     def get_visible_results(self) -> List[LinkedinJobResult]:
@@ -37,5 +33,8 @@ class LinkedinJobsResultsPage(JobsResultsPage):
         return [LinkedinJobResult(result) for result in results]
 
     def go_to_next_page(self):
-        self.scroll_to_last()
         driver.click_element(self.SEE_MORE_JOBS)
+
+    def scroll_to_last_result(self):
+        if self.has_results():
+            self.elements()[-1].scroll_into_view()

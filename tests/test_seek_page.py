@@ -3,7 +3,7 @@ from unittest import TestCase, mock
 from hed_utils.selenium import driver
 
 from scrape_jobs.sites.seek_com_au.seek_page import SeekPage
-from scrape_jobs.sites.seek_com_au.seek_result import SeekJobResult
+from scrape_jobs.sites.seek_com_au.seek_job_result import SeekJobResult
 
 
 class TestSeekPage(TestCase):

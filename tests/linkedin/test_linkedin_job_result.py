@@ -23,25 +23,25 @@ class TestLinkedinJobResult(TestCase):
     def test_get_utc_datetime(self):
         expected = time_tool.localize(datetime(2019, 9, 6, 0, 0), "UTC")
         actual = self.job.get_utc_datetime()
-        self.assertEqual(actual, expected)
+        self.assertEqual(expected, actual)
 
     def test_get_location(self):
         expected = "Sofia, BG"
         actual = self.job.get_location()
-        self.assertEqual(actual, expected)
+        self.assertEqual(expected, actual)
 
     def test_get_title(self):
         expected = "Automation QA Engineer (Virtualization Backup)"
         actual = self.job.get_title()
-        self.assertEqual(actual, expected)
+        self.assertEqual(expected, actual)
 
     def test_get_company(self):
         expected = "Acronis"
         actual = self.job.get_company()
-        self.assertEqual(actual, expected)
+        self.assertEqual(expected, actual)
 
     def test_get_url(self):
         expected = \
             "https://bg.linkedin.com/jobs/view/automation-qa-engineer-virtualization-backup-at-acronis-1452801029"
         actual = self.job.get_url()
-        self.assertEqual(actual, expected)
+        self.assertEqual(expected, actual)

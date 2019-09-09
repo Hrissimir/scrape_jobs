@@ -6,7 +6,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 
 from scrape_jobs.common.jobs_results_page import JobsResultsPage
-from scrape_jobs.sites.seek_com_au.seek_result import SeekJobResult
+from scrape_jobs.sites.seek_com_au.seek_job_result import SeekJobResult
 
 
 class SeekJobsResultsPage(JobsResultsPage):

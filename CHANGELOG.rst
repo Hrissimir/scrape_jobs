@@ -74,3 +74,11 @@ Version 2.0.1
 =============
 
 - fix for endless loop when no next results page
+
+
+Version 2.1.0
+=============
+
+- improved output
+- better page synchronization
+- small changes related to new hed_utils version

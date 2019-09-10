@@ -17,5 +17,5 @@ class LinkedinJobsPage(LinkedinJobsSearchPage, LinkedinJobsResultsPage, JobsPage
                       wait_for_page_load=wait_for_page_load,
                       check_is_at=check_is_at)
         if driver.is_visible(self.COOKIES_ALERT):
-            driver.click_element(self.COOKIES_ALERT)
+            driver.click_locator(self.COOKIES_ALERT)
             driver.wait_until_page_loads()

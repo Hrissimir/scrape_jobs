@@ -57,7 +57,7 @@ class SeekJobsResultsPage(JobsResultsPage):
                 loader.hide_element()
 
         log.info("clicking NEXT page button...")
-        driver.click_element(self.NEXT_PAGE_BUTTON)
+        driver.click_locator(self.NEXT_PAGE_BUTTON)
 
     def scroll_to_last_result(self):
         if self.has_results():

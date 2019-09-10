@@ -31,10 +31,8 @@ class LinkedinSearchSection(PageElement):
 
     def trigger_search(self):
         log.info("triggering search...")
+        driver.click_locator(self.search_button_locator)
         driver.wait_until_page_loads()
-        driver.scroll_into_view(self.search_button_locator)
-        driver.wait_until_page_loads()
-        driver.click_element(self.search_button_locator)
 
 
 class LinkedinJobsSearchForm(LinkedinSearchSection):

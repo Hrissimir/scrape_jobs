@@ -32,7 +32,7 @@ class LinkedinJobsResultsPage(JobsResultsPage):
         return [LinkedinJobResult(result) for result in results]
 
     def go_to_next_page(self):
-        driver.click_element(self.SEE_MORE_JOBS)
+        driver.click_locator(self.SEE_MORE_JOBS)
 
     def scroll_to_last_result(self):
         if self.has_results():

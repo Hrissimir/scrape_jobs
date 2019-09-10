@@ -27,7 +27,7 @@ class SearchFilter(PageElement):
 
     def apply(self):
         log.info("applying '%s' filter", self.name)
-        driver.click_element(self.DONE_BUTTON)
+        driver.click_locator(self.DONE_BUTTON)
         driver.wait_until_page_loads()
 
     def open_modal(self):
@@ -41,7 +41,7 @@ class SearchFilter(PageElement):
         log.info("clicking option: '%s' ", name)
         option_locator = By.XPATH, self.MODAL_LOCATOR[
             -1] + f"//label[contains(@class,'filter-list__list-item-label')][contains(.,'{name}')]"
-        driver.click_element(option_locator)
+        driver.click_locator(option_locator)
 
 
 class DatePostedFilter(SearchFilter):

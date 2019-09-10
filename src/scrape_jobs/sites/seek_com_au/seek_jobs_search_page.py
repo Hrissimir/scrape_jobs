@@ -34,7 +34,7 @@ class SeekJobsSearchPage(JobsSearchPage):
     def set_where(self, where: str):
         log.info("setting search 'WHERE' to: '%s'", where)
         driver.set_text(self.INPUT_WHERE, where)
-        driver.click_element(self.INPUT_WHERE_AUTOCOMPLETE_ITEM)
+        driver.click_locator(self.INPUT_WHERE_AUTOCOMPLETE_ITEM)
 
     def get_where(self) -> str:
         return driver.wait_until_visible_element(self.INPUT_WHERE).text
@@ -48,8 +48,8 @@ class SeekJobsSearchPage(JobsSearchPage):
 
     def sort_by_date(self):
         log.info("sorting results by 'Date'")
-        driver.click_element(self.SORT_BY_COMBO)
-        driver.click_element(self.SORT_BY_COMBO_DATE_ITEM)
+        driver.click_locator(self.SORT_BY_COMBO)
+        driver.click_locator(self.SORT_BY_COMBO_DATE_ITEM)
 
     def get_sort_order(self) -> str:
         if driver.is_visible(self.SORT_ORDER):
@@ -58,7 +58,7 @@ class SeekJobsSearchPage(JobsSearchPage):
 
     def trigger_search(self):
         log.info("triggering search...")
-        driver.click_element(self.SEARCH_BUTTON)
+        driver.click_locator(self.SEARCH_BUTTON)
         self.wait_for_search_complete()
         log.info("total results count: [%s]", self.get_total_results_count())
         self.sort_by_date()

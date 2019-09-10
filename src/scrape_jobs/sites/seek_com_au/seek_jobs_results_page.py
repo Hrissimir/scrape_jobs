@@ -16,10 +16,10 @@ class SeekJobsResultsPage(JobsResultsPage):
     RESULTS_LOADER = By.CSS_SELECTOR, "div[data-automation='searchResultsLoader']"
 
     def has_results(self) -> bool:
-        return driver.is_visible(self.RESULT_ITEM)
+        return driver.is_visible(self.RESULT_ITEM,timeout=5)
 
     def has_next_page(self) -> bool:
-        return driver.is_visible(self.NEXT_PAGE_BUTTON)
+        return driver.is_visible(self.NEXT_PAGE_BUTTON,timeout=5)
 
     def get_visible_results(self) -> List[SeekJobResult]:
         page_soup = driver.page_soup()
@@ -40,12 +40,12 @@ class SeekJobsResultsPage(JobsResultsPage):
             return ""
 
     def go_to_next_page(self):
-        log.info("moving to next results page...")
+        log.debug("moving to next results page...")
         try:
             loader = driver.wait_until_visible_element(self.RESULTS_LOADER, timeout=1)
-            log.info("found results loader element!")  # pragma: no cover
+            log.debug("found results loader element!")  # pragma: no cover
         except TimeoutException:  # pragma: no cover
-            log.info("no results loader was found")
+            log.debug("no results loader was found")
             loader = None
 
         if loader:  # pragma: no cover

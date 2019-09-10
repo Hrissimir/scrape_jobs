@@ -81,7 +81,7 @@ class JobsScraper(ABC):
         # convert the utc_datetime to date in target tz
         stamp_fmt = self.config.posted_timestamp_format
         tz_name = self.config.timezone or time_tool.get_local_tz_name()
-        log.info("setting results posted timestamp fmt='%s', tz='%s'", stamp_fmt, tz_name)
+        log.debug("setting results posted timestamp fmt='%s', tz='%s'", stamp_fmt, tz_name)
         for result in scraped_results:
             utc_datetime = result.get("utc_datetime", None)
             if utc_datetime:
@@ -91,7 +91,7 @@ class JobsScraper(ABC):
     def set_scraped_timestamps(self, rows: List[List[str]]) -> NoReturn:
         stamp_fmt = self.config.scraped_timestamp_format
         tz_name = self.config.timezone or time_tool.get_local_tz_name()
-        log.info("pre-pending scrape timestamp with format '%s' (%s) to (%s) rows", stamp_fmt, tz_name, len(rows))
+        log.debug("pre-pending scrape timestamp with format '%s' (%s) to [ %s ] rows", stamp_fmt, tz_name, len(rows))
         utc_now = time_tool.utc_moment()
         tz_now = time_tool.utc_to_tz(utc_now, tz_name)
         stamp = tz_now.strftime(stamp_fmt)
@@ -99,7 +99,7 @@ class JobsScraper(ABC):
             row.insert(0, stamp)
 
     def convert_to_rows(self, results_data: List[dict]) -> List[List[str]]:
-        log.info("converting (%s) results data to rows...", len(results_data))
+        log.info("converting [ %s ] jobs details to data rows...", len(results_data))
         rows = []
         for result in results_data:
             row = []
@@ -111,7 +111,6 @@ class JobsScraper(ABC):
             rows.append(row)
 
         self.set_scraped_timestamps(rows)
-        log.info("converted (%s) jobs to rows", len(rows))
         log.debug("got the following jobs rows:\n%s", pformat(rows, width=1000))
         return rows
 
@@ -135,7 +134,7 @@ class JobsScraper(ABC):
             log.info("quitting chrome driver...")
             driver.quit()
 
-        log.info("scraped (%s) raw results", len(raw_results))
+        log.info("scraped [ %s ] jobs in total", len(raw_results))
         self.set_posted_timestamps(raw_results)
 
         jobs = self.convert_to_rows(raw_results)

@@ -27,7 +27,7 @@ class LinkedinJobsSearchPage(JobsSearchPage):
         self.get_search_section().trigger_search()
 
     def set_search_params(self, **params):
-        log.info("setting linkedin jobs search params: %s", params)
+        log.debug("setting linkedin jobs search params: %s", params)
 
         keywords = params.pop("keywords", None)
         if keywords:

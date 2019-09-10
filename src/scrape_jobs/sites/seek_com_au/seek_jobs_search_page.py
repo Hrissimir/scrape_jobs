@@ -57,7 +57,7 @@ class SeekJobsSearchPage(JobsSearchPage):
         return ""
 
     def trigger_search(self):
-        log.info("triggering search...")
+        log.debug("triggering search...")
         driver.click_locator(self.SEARCH_BUTTON)
         self.wait_for_search_complete()
         log.info("total results count: [%s]", self.get_total_results_count())
@@ -73,7 +73,7 @@ class SeekJobsSearchPage(JobsSearchPage):
     def wait_for_search_complete(self):
         """Just waits for the results container to appear, without caring for actual result items"""
 
-        log.info("waiting for search to complete...")
+        log.debug("waiting for search to complete...")
 
         def search_complete() -> bool:
             return driver.is_visible(self.RESULTS_CONTAINER)

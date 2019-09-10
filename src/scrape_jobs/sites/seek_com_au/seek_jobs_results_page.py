@@ -16,10 +16,10 @@ class SeekJobsResultsPage(JobsResultsPage):
     RESULTS_LOADER = By.CSS_SELECTOR, "div[data-automation='searchResultsLoader']"
 
     def has_results(self) -> bool:
-        return driver.is_visible(self.RESULT_ITEM,timeout=5)
+        return driver.is_visible(self.RESULT_ITEM, timeout=5)
 
     def has_next_page(self) -> bool:
-        return driver.is_visible(self.NEXT_PAGE_BUTTON,timeout=5)
+        return driver.is_visible(self.NEXT_PAGE_BUTTON, timeout=5)
 
     def get_visible_results(self) -> List[SeekJobResult]:
         page_soup = driver.page_soup()

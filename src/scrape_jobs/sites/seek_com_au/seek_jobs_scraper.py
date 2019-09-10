@@ -8,8 +8,8 @@ from hed_utils.support.config_tool import read_config, format_config
 from scrape_jobs.common.jobs_scraper import JobsScraper
 from scrape_jobs.common.jobs_uploader import JobsUploader
 from scrape_jobs.sites.seek_com_au.seek_config import SeekScrapeConfig, SeekUploadConfig
-from scrape_jobs.sites.seek_com_au.seek_page import SeekPage
 from scrape_jobs.sites.seek_com_au.seek_job_result import SeekJobResult
+from scrape_jobs.sites.seek_com_au.seek_page import SeekPage
 
 
 class SeekScraper(JobsScraper):

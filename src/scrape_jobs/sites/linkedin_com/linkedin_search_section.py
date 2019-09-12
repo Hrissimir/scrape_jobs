@@ -30,7 +30,6 @@ class LinkedinSearchSection(PageElement):
         driver.wait_until_page_loads()
 
     def trigger_search(self):
-        driver.click_locator(self.search_button_locator)
         driver.wait_until_page_loads()
 
 

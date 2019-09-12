@@ -82,3 +82,9 @@ Version 2.1.0
 - improved output
 - better page synchronization
 - small changes related to new hed_utils version
+
+
+Version 2.1.1
+=============
+
+- fixed linkedin not properly applying date-posted filter

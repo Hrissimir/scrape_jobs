@@ -11,7 +11,7 @@ def get_tags(source: str) -> List[Tag]:
     return soup.select(":scope article")
 
 
-def get_posted(tag: Tag):
+def get_posted_time(tag: Tag):
     posted_tags = tag.select(":scope span[data-automation='jobListingDate']")
     return normalize_spacing(posted_tags[0].get_text().strip()) if posted_tags else None
 
@@ -60,7 +60,7 @@ def get_url(tag: Tag):
 
 
 PARSE_MAP = {
-    "posted": get_posted,
+    "posted_time": get_posted_time,
     "location": get_location,
     "area": get_area,
     "classification": get_classification,

@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup, Tag
 from hed_utils.support.text_tool import normalize_spacing
+from hed_utils.support.time_tool import TimedeltaParser, utc_moment
 from tabulate import tabulate
 
 
@@ -13,7 +14,12 @@ def get_tags(source: str) -> List[Tag]:
 
 def get_posted_time(tag: Tag):
     posted_tags = tag.select(":scope span[data-automation='jobListingDate']")
-    return normalize_spacing(posted_tags[0].get_text().strip()) if posted_tags else None
+    if posted_tags:
+        posted_text = normalize_spacing(posted_tags[0].get_text().strip())
+        posted_timedelta = TimedeltaParser.parse(posted_text)
+        return utc_moment() - posted_timedelta
+
+    return None
 
 
 def get_location(tag: Tag):

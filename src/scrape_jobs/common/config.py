@@ -12,7 +12,7 @@ DEFAULT_FILENAME = "scrape-jobs.ini"
 SAMPLE_FILEPATH = Path(__file__).parent.joinpath(DEFAULT_FILENAME)
 
 SheetsConfig = namedtuple("SheetsConfig", "json_filepath spreadsheet_name worksheet_index urls_column_index")
-TimeConfig = namedtuple("TimeConfig", "timezone max_post_age_days scraped_timestamp_fmt posted_timestamp_fmt")
+TimeConfig = namedtuple("TimeConfig", "timezone max_post_age_days scraped_timestamp_format posted_timestamp_format")
 ScrapeConfig = namedtuple("ScrapeConfig", "sheets_config time_config driver_headless search_params")
 
 
@@ -35,9 +35,9 @@ def parse_time_config(cfg: ConfigParser, section: str) -> TimeConfig:
     _log.debug("parsing time config for section: '%s'", section)
     timezone = cfg.get(section, "timezone")
     max_post_age_days = cfg.getint(section, "max_post_age_days")
-    scraped_timestamp_fmt = cfg.get(section, "scraped_timestamp_format")
-    posted_timestamp_fmt = cfg.get(section, "posted_timestamp_format")
-    time_config = TimeConfig(timezone, max_post_age_days, scraped_timestamp_fmt, posted_timestamp_fmt)
+    scraped_timestamp_format = cfg.get(section, "scraped_timestamp_format")
+    posted_timestamp_format = cfg.get(section, "posted_timestamp_format")
+    time_config = TimeConfig(timezone, max_post_age_days, scraped_timestamp_format, posted_timestamp_format)
     _log.info("got time config: %s", time_config)
     return time_config
 

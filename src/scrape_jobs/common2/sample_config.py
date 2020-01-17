@@ -5,7 +5,7 @@ from typing import Optional, NoReturn
 
 from hed_utils.support import log
 
-FILENAME = "scrape-jobs.ini"
+FILENAME = "../common/scrape-jobs.ini"
 CONTENTS = pkgutil.get_data("scrape_jobs.common", "scrape-jobs.ini").decode()
 
 

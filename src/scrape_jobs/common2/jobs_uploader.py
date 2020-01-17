@@ -3,7 +3,7 @@ from typing import NoReturn, List
 
 from hed_utils.support import log, google_spreadsheet
 
-from scrape_jobs.common.upload_config import UploadConfig
+from scrape_jobs.common2.upload_config import UploadConfig
 
 
 class JobsUploader:

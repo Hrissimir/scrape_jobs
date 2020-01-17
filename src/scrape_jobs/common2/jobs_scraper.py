@@ -3,12 +3,12 @@ from operator import itemgetter
 from pprint import pformat
 from typing import NoReturn, List, Dict
 
-from hed_utils.selenium import driver
+from hed_utils.selenium import SharedDriver, chrome_driver
 from hed_utils.support import log, time_tool
 
-from scrape_jobs.common.jobs_page import JobsPage
-from scrape_jobs.common.result_predicates import MaxDaysAge
-from scrape_jobs.common.scrape_config import ScrapeConfig
+from scrape_jobs.common2.jobs_page import JobsPage
+from scrape_jobs.common2.result_predicates import MaxDaysAge
+from scrape_jobs.common2.scrape_config import ScrapeConfig
 
 
 class JobsScraper(ABC):
@@ -116,21 +116,18 @@ class JobsScraper(ABC):
         log.info("scrape started with config: %s", self.config)
 
         log.info("starting chrome driver (headless=%s)", self.config.driver_headless)
-        if self.config.driver_headless:
-            driver.start_chrome(headless=True)
-        else:
-            driver.start_chrome()
-
+        SharedDriver.set_driver(chrome_driver.create_instance(headless=self.config.driver_headless))
         try:
             raw_results = self.scrape_raw_results_data()
         except:
             log.exception("error while scraping raw results data")
-            driver.save_screenshot("scrape_error_screenshot.png")
-            driver.save_source("scrape_error_html.txt")
+            SharedDriver.get_instance().save_screenshot("scrape_error_screenshot.png")
+            SharedDriver.get_instance().save_page_source("scrape_error_html.txt")
             raw_results = []
         finally:
             log.info("quitting chrome driver...")
-            driver.quit()
+            SharedDriver.get_instance().quit()
+            SharedDriver.set_driver(None)
 
         log.info("scraped (%s) raw results", len(raw_results))
         self.set_posted_timestamps(raw_results)

@@ -1,6 +1,6 @@
 from typing import List
 
-from scrape_jobs.common.job_result import JobResult
+from scrape_jobs.common2.job_result import JobResult
 
 
 class JobsResultsPage:

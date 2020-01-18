@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "49ee62cee4aeecf19fc8833f7f95a61d7798445d3d8f7fbaaa0de426b7cb6f41"
+            "sha256": "636c88a6a4c1648d7ebd30eaf8ea1e2f0ca6870f2cc7100ecb52379f64b8b442"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -53,11 +53,11 @@
         },
         "hed-utils": {
             "hashes": [
-                "sha256:278396a2b1c216e3b14ac0f694da6ff785ecd8d2572bfc32e1027a4c70e56323",
-                "sha256:7440dc31810a7e677d3be8a4e3c1983799198b99df93ae26366c452cbbf8ad92"
+                "sha256:56ab07cd5da67be3f6281c587bd1992409ca3b7fb4cd54222800408eacfd558c",
+                "sha256:6ac4b67ba190a7496804c6a0ab54da3b2c0d560b95880dd8f5ddffab808815ea"
             ],
             "index": "pypi",
-            "version": "==3.5.0"
+            "version": "==4.0.0"
         },
         "httplib2": {
             "hashes": [
@@ -147,13 +147,6 @@
                 "sha256:a50b808ffeb97cb3601dd25981f6b016cbb3d31fbf57a8b8a87428e6158d0c74"
             ],
             "version": "==0.2.8"
-        },
-        "pyminizip": {
-            "hashes": [
-                "sha256:347be4c47d7390fc3265a3ce774fd036d0c85cf1efc9bd1ba5a3b3d28e89b255",
-                "sha256:b001a5d0383fad73646b2d9db891f42e025c17f43d82ba1d7b75cae7c1ff4360"
-            ],
-            "version": "==0.2.4"
         },
         "pytz": {
             "hashes": [

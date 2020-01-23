@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 from bs4 import Tag, BeautifulSoup
 from hed_utils.selenium import FindBy, DriverWrapper
 from hed_utils.support.text_tool import normalize_spacing
-from hed_utils.support.time_tool import utc_moment, localize
+from hed_utils.support.time_tool import utc_moment, localize, poll_for_result
 from selenium.webdriver.common.keys import Keys
 
 from scrape_jobs.base.job import Job
@@ -64,8 +64,11 @@ def parse_tag(tag: Tag) -> Job:
 
 class DatePostedFilter:
     OPEN_BUTTON = FindBy.XPATH("//div[@id='TIME_POSTED-dropdown']/../button")
+
     DROPDOWN_BODY = FindBy.CSS_SELECTOR("div#TIME_POSTED-dropdown")
+
     FILTER_LABELS = FindBy.XPATH("//div[@id='TIME_POSTED-dropdown']//div[contains(@class, 'filter-list')]/ul/li/label")
+
     APPLY_BUTTON = FindBy.XPATH(
         "//div[@id='TIME_POSTED-dropdown']//div[contains(@class, 'dropdown-actions')]/button[contains(@class,'apply')]")
 
@@ -76,7 +79,7 @@ class DatePostedFilter:
         _log.debug("opening date-posted filter")
         self.OPEN_BUTTON.click()
 
-        if self.FILTER_LABELS.is_visible(timeout=5):
+        if not self.FILTER_LABELS.is_visible(timeout=5):
             raise RuntimeError("Could not open 'Date-Posted' filter!")
 
     def select_value(self, value: str):
@@ -104,6 +107,8 @@ class DatePostedFilter:
 class LinkedinPage(Page):
     URL = "https://www.linkedin.com/jobs"
 
+    RESULTS_LIST = FindBy.CSS_SELECTOR("ul.jobs-search__results-list")
+
     SEARCH_RESULTS = FindBy.CSS_SELECTOR(value="section.results__list > ul > li.result-card",
                                          visible_only=True,
                                          desc="search results")
@@ -126,6 +131,8 @@ class LinkedinPage(Page):
 
     DATE_POSTED_FILTER = DatePostedFilter(driver=Page.driver)
 
+    _known_jobs_tags = set()
+
     @classmethod
     def get_visible_job_tags(cls, page_source: str) -> List[Tag]:
         super().get_visible_job_tags(page_source)
@@ -137,6 +144,19 @@ class LinkedinPage(Page):
     @classmethod
     def parse_job_tag(cls, tag: Tag) -> Job:
         return parse_tag(tag)
+
+    @classmethod
+    def get_visible_jobs(cls) -> List[Job]:
+        _log.debug("getting visible jobs...")
+
+        visible_jobs_tags = cls.get_visible_job_tags(cls.driver.page_source)
+        new_jobs_tags = [t for t in visible_jobs_tags if t not in cls._known_jobs_tags]
+        cls._known_jobs_tags.update(new_jobs_tags)
+
+        visible_jobs = [cls.parse_job_tag(tag) for tag in new_jobs_tags]
+        _log.info("visible jobs: %s", len(visible_jobs))
+
+        return visible_jobs
 
     def go_to(self):
         super().go_to()
@@ -154,6 +174,7 @@ class LinkedinPage(Page):
         location = search_params.get("location", "")
         _log.info("entering 'location': '%s'", location)
         self.LOCATION_INPUT.click()
+        self.LOCATION_INPUT.clear()
         self.LOCATION_INPUT.send_keys(location + Keys.ENTER)
         self.driver.wait_for_page_load()
 
@@ -171,25 +192,33 @@ class LinkedinPage(Page):
         return self.SEARCH_RESULTS.is_visible(timeout=20)
 
     def scroll_to_bottom(self):
-        search_results = self.SEARCH_RESULTS.elements
-        if search_results:
-            search_results[-1].scroll_into_view()
+        if self.SEARCH_RESULTS.is_visible():
+            self.SEARCH_RESULTS[-1].scroll_into_view()
         self.driver.wait_for_page_load()
 
     def has_more_results(self) -> bool:
         super().has_more_results()
         self.scroll_to_bottom()
 
-        has_more = self.SEE_MORE_JOBS_BUTTON.is_visible(timeout=2)
-        if has_more:
+        if self.SEE_MORE_JOBS_BUTTON.is_visible(timeout=2):
             _log.info("more results are available!")
+            return True
         else:
             _log.warning("no more results are available!")
-        return has_more
+            return False
+
+    def get_visible_results_count(self) -> int:
+        return len(self.get_visible_job_tags(self.driver.page_source))
 
     def load_more_results(self):
         super().load_more_results()
-        load_more_button = self.SEE_MORE_JOBS_BUTTON.wrapped_element
-        load_more_button.click()
-        self.driver.wait_for_staleness_of(load_more_button, timeout=5)
+
+        initial_results_count = self.get_visible_results_count()
+
+        def more_results_loaded():
+            return initial_results_count < self.get_visible_results_count()
+
+        self.SEE_MORE_JOBS_BUTTON.click()
         self.driver.wait_for_page_load()
+
+        poll_for_result(more_results_loaded, timeout_seconds=5, poll_frequency=1)

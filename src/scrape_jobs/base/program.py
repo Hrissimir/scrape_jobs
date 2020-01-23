@@ -7,21 +7,26 @@ from scrape_jobs.base import (
 )
 from scrape_jobs.base.datastore import SheetsDatastore
 from scrape_jobs.base.scraper import Scraper
+from scrape_jobs.linkedin import LinkedinConfig, LinkedinJob, LinkedinPage
 from scrape_jobs.seek import SeekConfig, SeekJob, SeekPage
 
 __all__ = [
     "Program"
 ]
+
 CONFIG_CLASSES = {
-    "seek.com.au": SeekConfig
+    "seek.com.au": SeekConfig,
+    "linkedin.com": LinkedinConfig
 }
 
 JOB_CLASSES = {
-    "seek.com.au": SeekJob
+    "seek.com.au": SeekJob,
+    "linkedin.com": LinkedinJob
 }
 
 PAGES = {
-    "seek.com.au": SeekPage()
+    "seek.com.au": SeekPage(),
+    "linkedin.com": LinkedinPage()
 }
 
 _log = logging.getLogger(__name__)

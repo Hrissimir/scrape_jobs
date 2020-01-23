@@ -100,3 +100,6 @@ var/
 instance/
 docs/_build/
 /site
+
+# Pipenv os-dependent file
+Pipfile.lock

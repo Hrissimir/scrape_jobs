@@ -88,7 +88,8 @@ class DatePostedFilter:
         for label in self.FILTER_LABELS:
             label_text = normalize_spacing(label.text.strip())
             if value.lower() in label_text.lower():
-                label.click()
+                label_input = label.parent_element.find_element_by_tag_name("input")
+                self.driver.execute_script("arguments[0].click();", label_input.wrapped_element)
                 return
             else:
                 visible_labels.append(label_text)
@@ -184,7 +185,6 @@ class LinkedinPage(Page):
 
     def trigger_search(self):
         super().trigger_search()
-        self.SEARCH_BUTTON.click()
 
     def wait_for_results_to_load(self):
         super().wait_for_results_to_load()
@@ -200,7 +200,7 @@ class LinkedinPage(Page):
         super().has_more_results()
         self.scroll_to_bottom()
 
-        if self.SEE_MORE_JOBS_BUTTON.is_visible(timeout=2):
+        if self.SEE_MORE_JOBS_BUTTON.is_visible(timeout=10):
             _log.info("more results are available!")
             return True
         else:

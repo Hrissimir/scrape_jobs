@@ -14,7 +14,7 @@ twine = "==3.1.1"
 scrape-jobs = {editable = true,path = "."}
 
 [packages]
-hed-utils = "==4.1.0"
+hed-utils = "==4.1.1"
 
 [requires]
 python_version = "3.6"

@@ -4,6 +4,14 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+coverage = "==5.0"
+flake8 = "==3.7.9"
+pylint = "==2.4.4"
+pytest = "==5.3.2"
+pytest-cov = "==2.8.1"
+pyscaffold = {extras = ["all"],version = "==3.2.3"}
+twine = "==3.1.1"
+scrape-jobs = {editable = true,path = "."}
 
 [packages]
 hed-utils = "==4.1.0"

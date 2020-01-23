@@ -6,8 +6,12 @@ scrape_jobs
 CLI jobs scraper targeting multiple sites
 
 
+
 Description
 ===========
+
+
+Extract jobs details from a target site and upload data to google sheets.
 
 
 Currently supported sites
@@ -20,7 +24,7 @@ Currently supported sites
 Installation
 ------------
 
-`pip install -U scrape_jobs`
+`pip install --force -U scrape_jobs`
 
 
 Short instructions:
@@ -29,10 +33,10 @@ Short instructions:
 - Ensure your machine has available chromedriver in path
 - Prepare upload spreadsheet (detailed instructions bellow)
 - Open cmd / terminal
-- Install / Update from pip with `pip install -U scrape_jobs`
-- Call `scrape-jobs-init-config` to init sample .ini file in the current dir
+- Install / Update from pip with `pip install --force -U scrape_jobs`
+- Call `scrape-jobs-init-config` to get sample 'scrape-jobs.ini' file in the current dir
 - Edit the config file and save
-- Call `scrape-jobs SITE scrape-jobs.ini` and let it roll
+- Call `scrape-jobs -s TARGET_SITE -c scrape-jobs.ini` and let it roll
 - Check your spreadsheet after execution completes
 
 
@@ -59,19 +63,19 @@ Long Instructions:
 
     - set the index of the worksheet where you want the results to be uploaded (0-based index)
 
-- To trigger a seek.com.au scrape (currently this is the only supported site):
+- To trigger execution:
 
-    - run `scrape-jobs seek.com.au scrape-jobs.ini`
+    - run `scrape-jobs -s TARGET_SITE -c scrape-jobs.ini`
 
     - you will see output in the console, but a scrape-jobs.log will be created too
 
-    - to have more detailed output call `scrape-jobs -vv seek.com.au scrape-jobs.ini` instead
+    - to have more detailed output call `scrape-jobs -vv -s TARGET_SITE -c scrape-jobs.ini` instead
 
 - After the scrape is complete you should see the newly discovered jobs in your spreadsheet
 
 - Alternatively you can init a config at a known place and just pass it's path:
 
-    `scrape-jobs seek.com.au abs\path\to\your_config.ini`
+    `scrape-jobs -s seek.com.au -c /path/to/config.ini`
 
 
 Note

@@ -29,6 +29,16 @@ class SeekPage(Page):
     def perform_search(self):
         self.set_search_params()
         self.search_button.click()
+        self.wait_for_results_to_load()
+        self.sort_by_date()
+
+    def sort_by_date(self):
+        _log.info("sorting results by date...")
+        sort_by = FindBy.XPATH("//label[contains(@id,'sortby-label')]")
+        sort_by.click()
+        date_option = FindBy.XPATH(f"//label[contains(@id,'sortby-label')]/../ul/li[contains(.,'Date')]")
+        date_option.click()
+        self.driver.wait_for_page_load()
 
     def set_search_params(self):
         _log.info("setting search params...")
@@ -49,12 +59,14 @@ class SeekPage(Page):
 
     def wait_for_results_to_load(self):
         self.driver.wait_for_page_load()
-        return self.search_results.is_visible(timeout=20)
+        return self.search_results.is_visible(timeout=15)
 
     def has_more_results(self) -> bool:
         return self.next_page_button.is_visible(timeout=5)
 
     def load_more_results(self):
-        last_result = self.search_results[-1]
+        if self.search_results.is_visible():
+            last_result = self.search_results[-1]
+            last_result.scroll_into_view()
+
         self.next_page_button.click()
-        self.driver.wait_for_staleness_of(last_result, timeout=10)

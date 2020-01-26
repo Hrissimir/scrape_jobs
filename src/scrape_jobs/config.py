@@ -2,11 +2,11 @@ import logging
 import pkgutil
 from collections import namedtuple
 from configparser import ConfigParser
-from datetime import timedelta
 
-from hed_utils.support import config_tool, time_tool
+from hed_utils.support.config_tool import parse_file, format_parser
 
 __all__ = [
+    "LOG_FORMAT",
     "CONFIG_FILENAME",
     "SearchConfig",
     "SheetsConfig",
@@ -18,23 +18,31 @@ __all__ = [
 _log = logging.getLogger(__name__)
 _log.addHandler(logging.NullHandler())
 
+LOG_FORMAT = "%(asctime)s | %(levelname)8s | %(message)s"
 CONFIG_FILENAME = "scrape-jobs.ini"
-SAMPLE_FILENAME = "config_sample.ini"
+SAMPLE_FILENAME = "sample_config.ini"
 
-SearchConfig = namedtuple("SearchConfig", "driver_headless search_params utc_posted_after")
+SearchConfig = namedtuple("SearchConfig", "driver_headless search_params max_post_age_days max_attempts")
 SheetsConfig = namedtuple("SheetsConfig", "spreadsheet_title worksheet_title json_filepath")
 TimeConfig = namedtuple("TimeConfig", "tz_name posted_fmt scraped_fmt")
 
 
 def get_sample_contents():
+    _log.debug("getting sample config contents...")
     return pkgutil.get_data(__package__, SAMPLE_FILENAME)
 
 
 class Config:
+    DEFAULT_MAX_ATTEMPTS = 3
     SECTION: str
     search_config: SearchConfig
     sheets_config: SheetsConfig
     time_config: TimeConfig
+
+    def __init__(self):
+        self.search_config = None
+        self.sheets_config = None
+        self.time_config = None
 
     def __repr__(self):
         return f"{type(self).__name__}({self.search_config}, {self.sheets_config}, {self.time_config})"
@@ -42,13 +50,10 @@ class Config:
     @classmethod
     def parse_search_config(cls, parser: ConfigParser) -> SearchConfig:
         _log.debug("parsing search config...")
-        max_post_age_days = parser.getint(cls.SECTION, "max_post_age_days")
-        max_post_age = timedelta(days=max_post_age_days)
-        utc_now = time_tool.utc_moment().replace(minute=0, second=0, microsecond=0)
-        utc_posted_after = utc_now - max_post_age
         return SearchConfig(driver_headless=parser.getboolean(cls.SECTION, "driver_headless"),
                             search_params=dict(),
-                            utc_posted_after=utc_posted_after)
+                            max_post_age_days=parser.getint(cls.SECTION, "max_post_age_days"),
+                            max_attempts=parser.getint(cls.SECTION, "max_attempts", fallback=cls.DEFAULT_MAX_ATTEMPTS))
 
     @classmethod
     def parse_time_config(cls, parser: ConfigParser) -> TimeConfig:
@@ -66,6 +71,7 @@ class Config:
 
     @classmethod
     def parse(cls, parser: ConfigParser):
+        _log.debug("parsing %s ...", cls.__name__)
         config = cls()
         config.search_config = cls.parse_search_config(parser)
         config.sheets_config = cls.parse_sheets_config(parser)
@@ -73,7 +79,8 @@ class Config:
         return config
 
     @classmethod
-    def from_file(cls, src_file: str):
-        _log.info("reading '%s' config from file: '%s'", cls.__name__, src_file)
-        parser = config_tool.parse_file(src_file)
+    def parse_file(cls, src_file: str):
+        _log.debug("reading '%s' config from file: '%s'", cls.__name__, src_file)
+        parser = parse_file(src_file)
+        _log.debug("got config contents:\n\n", format_parser(parser))
         return cls.parse(parser)

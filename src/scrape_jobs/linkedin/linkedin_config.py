@@ -1,24 +1,12 @@
-import logging
 from configparser import ConfigParser
 
-from scrape_jobs.base.config import Config, SearchConfig
+from scrape_jobs.config import Config, SearchConfig
 
-__all__ = [
-    "LinkedinConfig"
-]
-
-_log = logging.getLogger(__name__)
-_log.addHandler(logging.NullHandler())
+__all__ = ["LinkedinConfig"]
 
 
 class LinkedinConfig(Config):
     SECTION = "linkedin.com"
-
-    def __init__(self):
-        super().__init__()
-        self.search_config = None
-        self.sheets_config = None
-        self.time_config = None
 
     @classmethod
     def parse_search_config(cls, parser: ConfigParser) -> SearchConfig:

@@ -1,97 +1,173 @@
 ===========
-scrape_jobs
+scrape-jobs
 ===========
 
 
-CLI jobs scraper targeting multiple sites
+    Simple CLI jobs scraper
 
 
 
-Description
-===========
+DISCLAIMER
+==========
 
 
-Extract jobs details from a target site and upload data to google sheets.
+    * Made as POC
+
+    * USE AT YOUR OWN RISK
 
 
-Currently supported sites
--------------------------
 
-- linkedin.com
-- seek.com.au
+Workflow
+--------
+
+
+    1. Scrape jobs matching certain criteria
+
+        * linkedin.com - [ keywords , location ]
+
+        * seek.com.au - [ what , where ]
+
+
+    2. Store the scraped data
+
+        * upload to Google Sheets.
+
+        * or just store it locally to CSV file.
+
 
 
 Installation
-------------
-
-`pip install --force -U scrape_jobs`
+============
 
 
-Short instructions:
--------------------
+Prerequisites:
 
-- Ensure your machine has available chromedriver in path
-- Prepare upload spreadsheet (detailed instructions bellow)
-- Open cmd / terminal
-- Install / Update from pip with `pip install --force -U scrape_jobs`
-- Call `scrape-jobs-init-config` to get sample 'scrape-jobs.ini' file in the current dir
-- Edit the config file and save
-- Call `scrape-jobs -s TARGET_SITE -c scrape-jobs.ini` and let it roll
-- Check your spreadsheet after execution completes
+    * Google Chrome installed
+
+    * chromedriver binary executable in PATH
+
+    * Python 3.6+
+
+    * Prepared Google Spreadsheet (detailed instructions bellow)
 
 
-Long Instructions:
-------------------
+Install command:
 
-- Prepare the spreadsheet and the spreadsheet's secrets .json (instructions at the bottom)
+    `pip install --force -U scrape-jobs`
 
-    - In seek.com.au results sheet, set the first row values (the header) to:
 
-        'date', 'location', 'title', 'company', 'classification', 'url', 'is_featured', 'salary'
+Installs the following CLI bindings:
 
-- Open a cmd/terminal
 
-- Navigate to some work folder of your choice (e.g "c:\job_scrape", referred to later as CWD)
+    * `scrape-jobs-init-config`
+
+    * `scrape-jobs`
+
+
+
+Basic Instructions
+==================
+
+
+1. Open terminal/CMD and 'cd' into working dir.
+
+2. Run `scrape-jobs-init-config` to populate sample config file in the current work dir
+
+    usage: scrape-jobs-init-config [-h] [--version] [-v] [-vv] [-f FILE]
+
+    initialize sample 'scrape-jobs' config file
+
+    optional arguments:
+      -h, --help           show this help message and exit
+      --version            show program's version number and exit
+      -v, --verbose        set loglevel to INFO
+      -vv, --very-verbose  set loglevel to DEBUG
+      -f FILE              defaults to '/current/work/dir/scrape-jobs.ini'
+
+
+3. Edit the config file as per your needs
+
+4. Run `scrape-jobs` to trigger execution
+
+    usage: scrape-jobs [-h] [--version] [-v] [-vv] [-c CONFIG_FILE]
+                       {linkedin.com,seek.com.au}
+
+    Scrape jobs and store results.
+
+    positional arguments:
+      {linkedin.com,seek.com.au}
+                            site to scrape
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --version             show program's version number and exit
+      -v, --verbose         set loglevel to INFO
+      -vv, --very-verbose   set loglevel to DEBUG
+      -c CONFIG_FILE        defaults to '/current/work/dir/scrape-jobs.ini'
+
+
+More Detailed Instructions:
+---------------------------
+
+- Prepare the spreadsheet and the spreadsheet's auth.json (Spreadsheet instructions at the bottom)
+
+    - For `seek.com.au` the Worksheet's columns are:
+
+        ["scraped_time", "posted_time", "location", "area", "classification", "sub_classification", "title", "salary", "company", "url"]
+
+    - For `linkedin.com` the Worksheet's columns are:
+
+         ["scraped_time", "posted_time", "location", "title", "company", "url"]
 
 - Init empty config file by calling `scrape-jobs-init-config`
 
 - Edit the newly created `CWD\\scrape-jobs.ini` with params of your choice
 
-    - set the path to the CREDENTIALS SECRETS .JSON
+    - set the path to the AUTH.JSON
 
-    - set the proper spreadsheet name
+    - set the spreadsheet name
 
-    - set the index of the worksheet where you want the results to be uploaded (0-based index)
+    - set the worksheet name  (it will be automatically created if it doesn't exist)
 
-- To trigger execution:
+    - set the search params
 
-    - run `scrape-jobs -s TARGET_SITE -c scrape-jobs.ini`
+- Trigger execution:
+
+    - run `scrape-jobs linkedin.com` or `scrape-jobs seek.com.au`
 
     - you will see output in the console, but a scrape-jobs.log will be created too
 
-    - to have more detailed output call `scrape-jobs -vv -s TARGET_SITE -c scrape-jobs.ini` instead
+    - to have more detailed output add `-vv` execution param
 
 - After the scrape is complete you should see the newly discovered jobs in your spreadsheet
 
 - Alternatively you can init a config at a known place and just pass it's path:
 
-    `scrape-jobs -s seek.com.au -c /path/to/config.ini`
+    `scrape-jobs-init-config -f /custom/path/to/config.ini`
+
+    `scrape-jobs -c /custom/path/to/config.ini seek.com.au`
+
 
 
 Note
 ====
 
-You need to prepare secrets .json file in advance that is to be used for authentication with GoogleSheets
+
+You need to prepare AUTH.JSON file in advance that is to be used for authentication with GoogleSheets
 
 The term 'Spreadsheet' refers to a single document that is shown in the GoogleSpreadsheets landing page
 
-A single 'Spreadsheet' can contain one or more 'worksheets'
+A single 'Spreadsheet' can contain one or more 'Worksheets'
 
-Usually a newly created 'Spreadsheet' contains a single 'worksheet' named 'Sheet1'
+Usually a newly created 'Spreadsheet' contains a single 'Worksheet' named 'Sheet1'
+
+If you don't provide a valid path to AUTH.JSON the collected data will be saved as .csv in the current work dir
 
 
-Instructions for preparing a shared Google Spreadsheet CREDENTIALS SECRETS .JSON:
----------------------------------------------------------------------------------
+
+Instructions for preparing Google Spreadsheet AUTH.JSON:
+--------------------------------------------------------
+
 
     1. Go to https://console.developers.google.com/
 
@@ -135,7 +211,7 @@ Instructions for preparing a shared Google Spreadsheet CREDENTIALS SECRETS .JSON
 
         - Key type: JSON
 
-    15. Press the blue 'Continue' button, and a download of the CREDENTIALS SECRETS .JSON file will begin (store it safe)
+    15. Press the blue 'Continue' button, and a download of the AUTH.JSON file will begin (store it safe)
 
     16. Close the modal and go back to the project 'Dashboard' using the left-side navigation panel
 
@@ -143,11 +219,11 @@ Instructions for preparing a shared Google Spreadsheet CREDENTIALS SECRETS .JSON
 
     18. Search for 'Google Sheets API', then open the result and click the blue 'ENABLE' button
 
-    19. Open the downloaded secrets.json file and copy the value of the 'client_email'
+    19. Open the downloaded auth.json file and copy the value of the 'client_email'
 
     20. Using the same google account as in step 2. , go to the normal google sheets and create & open the 'Spreadsheet'
 
-        - do a final renaming to the spreadsheet now to avoid coding issues in future
+        - do a final renaming to the spreadsheet now to avoid issues in future
 
     21. 'Share' the document with the email copied in step 19., giving it 'Edit' permissions
 

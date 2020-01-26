@@ -1,6 +1,5 @@
-from .config import *
-from .datastore import *
-from .job import *
-from .page import *
-from .scraper import *
-from .program import *
+from . import data_collection
+from . import data_processing
+from . import data_storage
+
+__all__ = ["data_collection", "data_processing", "data_storage"]

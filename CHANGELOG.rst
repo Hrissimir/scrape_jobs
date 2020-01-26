@@ -3,6 +3,12 @@ Changelog
 =========
 
 
+Version 3.0.2
+=============
+
+- minor fixes in seek_job.py
+
+
 Version 3.0.1
 =============
 
